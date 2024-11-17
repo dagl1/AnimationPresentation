@@ -598,7 +598,8 @@ class Main(InteractiveScene):
         sample_clustering_text = Text(
             "Sample Clustering\n"
             "(e.g. t-SNE)",
-            font_size=20
+            font_size=20,
+            opacity=0.8
         ).scale(1)
         sample_clustering_text.next_to(vgroup, DOWN, aligned_edge=LEFT)
         num_points = 20
@@ -630,7 +631,7 @@ class Main(InteractiveScene):
                   run_time=0.1 * self.speed)
         self.play(Write(legend),
                   run_time=0.1 * self.speed)
-        [self.play(FadeIn(dot), run_time=(0.2) * self.speed) for dot in dots[1:]]
+        [self.play(FadeIn(dot), run_time=(0.1) * self.speed) for dot in dots[1:]]
         self.wait(0.5 * self.speed)
         dots_new = [Dot((point[0], point[1], 0), radius=0.05,
                         color=ORANGE, fill_color=ORANGE) for
@@ -650,7 +651,8 @@ class Main(InteractiveScene):
 
         specific_question_text_2 = Text(
             "Can we cluster using metabolic predictions \n"
-            "better than using just gene expression?"
+            "better than using just gene expression?",
+            opacity=0.8
         ).scale(0.5)
         question_mark = Text("?").scale(1.5)
         group = VGroup(specific_question_text_2, question_mark).arrange(RIGHT)
@@ -673,6 +675,7 @@ class Main(InteractiveScene):
         chararacteristics_text = Text(
             "Do these clusters share\n"
             "metabolic characteristics?",
+            opacity=0.8,
             font_size=20
         ).scale(1)
         chararacteristics_text.next_to(vgroup, DOWN, aligned_edge=RIGHT)
@@ -827,7 +830,8 @@ class Main(InteractiveScene):
         full_object.next_to(char_rect.get_left(), RIGHT, aligned_edge=LEFT).shift(LEFT * 0.2)
         full_object.move_to(char_rect.get_center())
 
-        self.add(full_object)
+        self.play(FadeIn(metabolic_network),
+                    run_time=2 * self.speed)
 
         purple_ = np.array([0.5, 0, 0.5])
         orange_ = np.array([1, 0.5, 0])
@@ -872,7 +876,7 @@ class Main(InteractiveScene):
                     new_color = (color_to_rgb(arrow.get_color()) + alpha * (purple_ - color_to_rgb(arrow.get_color())))
                     arrow.set_color(rgb_to_color(new_color))
             run_time = exponential_runtimes[idx]
-            self.play(*[Indicate(obj, color=color, scale_factor=1.2) for obj in highlighted_edges[random_path_idx]],
+            self.play(*[Indicate(obj, color=color, scale_factor=1.4) for obj in highlighted_edges[random_path_idx]],
                       run_time=run_time * self.speed)
             # else:
             #     continue
@@ -922,6 +926,11 @@ class Main(InteractiveScene):
 
         self.vom_dict["box_question_2"] = box
         self.vom_dict["characteristics_subscene"] = full_subscene
+        subscene_minus_faded_out = VGroup()
+        for obj in full_object:
+            if obj not in nodes_to_indicate_and_fade_out + lines_to_indicate_and_fade_out:
+                subscene_minus_faded_out.add(obj)
+
         self.wait(1 * self.speed)
 
         box_1_copy = box_1.copy()
@@ -929,8 +938,11 @@ class Main(InteractiveScene):
         self.play(ShowPassingFlash(box_1_copy, time_width=0.5, run_time=2 * self.speed))
         self.wait(1 * self.speed)
         clustering_graph = self.vom_dict["clustering_graph"]
-        self.play(FadeOut(full_subscene),
+        self.play(FadeOut(subscene_minus_faded_out),
                   FadeOut(box),
+                  FadeOut(self.vom_dict["prediction_question"]),
+                  FadeOut(chararacteristics_text),
+                  FadeOut(char_rect),
                   FadeOut(clustering_graph),
                   run_time=1 * self.speed)
         self.wait(1 * self.speed)
@@ -940,10 +952,11 @@ class Main(InteractiveScene):
             FadeOut(self.vom_dict["reaction_table"]),
             FadeOut(self.vom_dict["metabolic_network"]),
             FadeOut(self.vom_dict["full_object"]),
-            FadeOut(self.vom_dict["prediction_question"]),
             FadeOut(self.vom_dict["box_question_1"]),
             run_time=1 * self.speed
         )
+        # TODO change indication in network graph to be only width using custom function
+        # TODO and make speed slightly different
 
 
         # specific_question_text_3 = Text(
@@ -1000,5 +1013,15 @@ class Main(InteractiveScene):
 
 
 if __name__ == "__main__":
-    subprocess.run(["manimgl", "SRC/main.py", "Main", "-e", "--full_screen"])
+    # subprocess.run(["manimgl", "SRC/main.py", "Main", "-e",
+    #                 # "--full_screen"
+    #                 ])
+    subprocess.run([
+        "manimgl", "SRC/main.py", "Main",
+        "-w",
+        "--uhd"
+    ])
+
+
+
     # checkpoint_paste()
