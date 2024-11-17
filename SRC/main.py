@@ -795,8 +795,8 @@ class Main(InteractiveScene):
                 random_paths_E4 = json.load(f)
 
         sample_N = 200
-        initial_runtime = 0.08
-        last_runtime = 0.0001
+        initial_runtime = 0.1
+        last_runtime = 0.001
         exponential_runtimes = np.exp(np.linspace(np.log(initial_runtime), np.log(last_runtime), sample_N))
         circle_settings = {
             "radius": 0.11,
@@ -831,6 +831,7 @@ class Main(InteractiveScene):
         full_object.move_to(char_rect.get_center())
 
         self.play(FadeIn(metabolic_network),
+                  *[FadeIn(arrows) for arrows in arrows_to_grow],
                     run_time=2 * self.speed)
 
         purple_ = np.array([0.5, 0, 0.5])
@@ -876,7 +877,7 @@ class Main(InteractiveScene):
                     new_color = (color_to_rgb(arrow.get_color()) + alpha * (purple_ - color_to_rgb(arrow.get_color())))
                     arrow.set_color(rgb_to_color(new_color))
             run_time = exponential_runtimes[idx]
-            self.play(*[Indicate(obj, color=color, scale_factor=1.4) for obj in highlighted_edges[random_path_idx]],
+            self.play(*[Indicate(obj, color=color, scale_factor=1.2) for obj in highlighted_edges[random_path_idx]],
                       run_time=run_time * self.speed)
             # else:
             #     continue
@@ -901,10 +902,10 @@ class Main(InteractiveScene):
                 if isinstance(obj, Line):
                     lines_to_indicate_and_fade_out.append(obj)
 
-        self.play(
-            *[Indicate(obj, color=BLUE, scale_factor=2) for obj in nodes_to_indicate_and_fade_out],
-            run_time=2 * self.speed,
-        )
+        # self.play(
+        #     *[Indicate(obj, color=BLUE, scale_factor=2) for obj in nodes_to_indicate_and_fade_out],
+        #     run_time=2 * self.speed,
+        # )
         self.play(
             *[custom_line_indicate_animation_only_width(obj, color=WHITE, scale_factor=1.5) for obj in lines_to_indicate_and_fade_out],
             run_time=2 * self.speed,
@@ -912,6 +913,7 @@ class Main(InteractiveScene):
         self.play(
             *[FadeOut(obj) for obj in nodes_to_indicate_and_fade_out],
             *[FadeOut(obj) for obj in lines_to_indicate_and_fade_out],
+            run_time=1 * self.speed
         )
         full_subscene = VGroup(vgroup_3,
                                char_rect,
