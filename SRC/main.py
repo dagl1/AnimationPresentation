@@ -4,18 +4,19 @@ import subprocess
 import random
 import json
 
+
 class Utils:
     @staticmethod
     def create_table_with_removable_objects(
-        data: list[list] or dict,
-        removable_keys: list[str],
-        fontsize: int = 28,
-        x_buff: float = 0.3,
-        y_buff: float = 0.5,
-        header_row_present: bool = True,
-        scale: float = 1,
+            data: list[list] or dict,
+            removable_keys: list[str],
+            fontsize: int = 28,
+            x_buff: float = 0.3,
+            y_buff: float = 0.5,
+            header_row_present: bool = True,
+            scale: float = 1,
     ):
-        amount_of_columns = len(list(data.values())[0])+1
+        amount_of_columns = len(list(data.values())[0]) + 1
         amount_of_rows = len(data)
         max_x = 0
         max_y = 0
@@ -25,7 +26,7 @@ class Utils:
                 if i == 0:
                     value = list(data.keys())[j]
                 else:
-                    value = str(list(data.values())[j][i-1])
+                    value = str(list(data.values())[j][i - 1])
                 max_x = max(max_x, Text(value, font_size=fontsize).get_width())
                 max_y = max(max_y, Text(value, font_size=fontsize).get_height())
         x_size = max_x + x_buff
@@ -40,7 +41,7 @@ class Utils:
                 if i == 0:
                     value = list(data.keys())[j]
                 else:
-                    value = str(list(data.values())[j][i-1])
+                    value = str(list(data.values())[j][i - 1])
                 text = Text(value, alignment="center", font_size=fontsize)
                 cell_bg = Rectangle(width=x_size, height=y_size,
                                     fill_color=WHITE, fill_opacity=0.0, stroke_width=1)
@@ -52,7 +53,7 @@ class Utils:
                     to_remove_counter += 1
                 else:
                     str_i_j = str(i) + str(j)
-                    shift_dict[str_i_j] = (cell, i,j, to_remove_counter * y_size)
+                    shift_dict[str_i_j] = (cell, i, j, to_remove_counter * y_size)
 
             column.arrange(DOWN, buff=0, aligned_edge=align)
             table.add(column)
@@ -157,7 +158,7 @@ class Utils:
             if show_path_to_highlight:
                 for idx, path in enumerate(paths):
                     if any(node in path_vars for path_vars in path) and (
-                        node not in highlighted_edges[idx]
+                            node not in highlighted_edges[idx]
                     ):
                         highlighted_edges[idx].append(circle)
             if show_node_paths:
@@ -174,16 +175,16 @@ class Utils:
             start = list[0][0]
             end = list[0][1]
             if start == "":
-                arrow = Arrow(nodes.get(end).get_left() + LEFT*0.9,
-                              nodes.get(end).get_center() + RIGHT*0.05)
+                arrow = Arrow(nodes.get(end).get_left() + LEFT * 0.9,
+                              nodes.get(end).get_center() + RIGHT * 0.05)
                 arrow.set_stroke(
                     color=arrow_color,
                     width=arrow_stroke_width
                 )
                 arrows.append(arrow)
             elif end == "":
-                arrow = Arrow(nodes.get(start).get_center()+LEFT*0.05,
-                              nodes.get(start).get_right() + RIGHT*0.9)
+                arrow = Arrow(nodes.get(start).get_center() + LEFT * 0.05,
+                              nodes.get(start).get_right() + RIGHT * 0.9)
                 arrow.set_stroke(
                     color=arrow_color,
                     width=arrow_stroke_width
@@ -216,7 +217,7 @@ class Utils:
                         if np.dot(tangential_vector, middle_of_nodes - new_line.get_center()) > 0:
                             tangential_vector = -tangential_vector
                         if any([abs(value) >= 0.9 and abs(value) <= 1.1 for value in tangential_vector]):
-                            distance_to_use = distance_from_line*1.5
+                            distance_to_use = distance_from_line * 1.5
                         else:
                             distance_to_use = distance_from_line
                         expression_text.next_to(new_line.get_center(),
@@ -224,7 +225,7 @@ class Utils:
                                                 buff=distance_to_use,
                                                 aligned_edge=ORIGIN)
 
-                        edges[edge+"_text"] = expression_text
+                        edges[edge + "_text"] = expression_text
 
                 if show_path_to_highlight:
                     for idx, path in enumerate(paths):
@@ -250,12 +251,12 @@ class Utils:
         for node, position in nodes_dict.items():
             position.append(0)
 
-        probability_function = lambda x: 1/(1+np.exp(-0.5*(x-2.5)))
+        probability_function = lambda x: 1 / (1 + np.exp(-0.5 * (x - 2.5)))
         edges_dict = {}
         total_edges = 0
 
-        for idx, (node,value) in enumerate(nodes_dict.items()):
-            for node_2,value_2 in list(nodes_dict.items())[idx:]:
+        for idx, (node, value) in enumerate(nodes_dict.items()):
+            for node_2, value_2 in list(nodes_dict.items())[idx:]:
                 if node.startswith("IN") and node_2.startswith("A"):
                     edges_dict[f"{node}>{node_2}"] = [(node, node_2)]
                     total_edges += 1
@@ -271,7 +272,7 @@ class Utils:
                 if x_2 == x_1:
                     continue
                 y_2 = value_2[1]
-                distance = np.sqrt(((x_1 - x_2)*2)**2 + ((y_1 - y_2)) **2)
+                distance = np.sqrt(((x_1 - x_2) * 2) ** 2 + ((y_1 - y_2)) ** 2)
                 probability = probability_function(distance)
                 # print(f"{node}>{node_2}, Distance: {distance}, Probability: {probability}")
                 if np.random.rand() > probability:
@@ -308,8 +309,8 @@ class Utils:
         for IN_node in IN_nodes:
             for OUT_node in OUT_nodes:
                 paths = find_paths(graph, IN_node, OUT_node)
-                paths = [path[:-1] for path in paths] #remove last element
-                paths = [path[1:] for path in paths] #remove first element
+                paths = [path[:-1] for path in paths]  #remove last element
+                paths = [path[1:] for path in paths]  #remove first element
                 if len(total_paths) == 0:
                     total_paths = paths
                 else:
@@ -325,8 +326,8 @@ class Utils:
 
         random_paths_J1 = random.sample(paths_through_J1, 15)
         random_paths_E4 = random.sample(paths_through_E4, 15)
-        random_paths_J1 = [IN_nodes + path +OUT_nodes  for path in random_paths_J1]
-        random_paths_E4 = [IN_nodes + path +OUT_nodes  for path in random_paths_E4]
+        random_paths_J1 = [IN_nodes + path + OUT_nodes for path in random_paths_J1]
+        random_paths_E4 = [IN_nodes + path + OUT_nodes for path in random_paths_E4]
         node_paths = random_paths_J1 + random_paths_E4
 
         ## function that increases stepsize from initial_runtime to last_runtime in 200 steps
@@ -340,7 +341,7 @@ class Utils:
 
         new_edges_dict = {}
         for key, list_ in edges_dict.items():
-            u , v = list_[0]
+            u, v = list_[0]
             if u in nodes_not_in_paths or v in nodes_not_in_paths:
                 continue
             new_edges_dict[key] = [(u, v)]
@@ -356,7 +357,7 @@ class Utils:
                 continue
             new_nodes_dict[node] = value
         print(new_nodes_dict)
-        return(
+        return (
             new_nodes_dict,
             new_edges_dict,
             node_paths,
@@ -374,17 +375,17 @@ class Main(InteractiveScene):
         ).scale(1)
         # text_macsbio.to_edge(UP)
         self.play(Write(text_macsbio),
-                  run_time=3*self.speed)
+                  run_time=3 * self.speed)
         text_route_optimization = Text(
             "Route Optimizations",
         ).scale(1)
         text_route_optimization.next_to(text_macsbio, DOWN)
         self.play(Write(text_route_optimization),
-                  run_time=3*self.speed)
-        self.wait(1*self.speed)
+                  run_time=3 * self.speed)
+        self.wait(1 * self.speed)
         self.play(FadeOut(text_macsbio),
                   FadeOut(text_route_optimization),
-                  run_time=1*self.speed)
+                  run_time=1 * self.speed)
 
     def does_gene_expression_predict_metabolic_activity(self):
         specific_question_text_1 = Text(
@@ -393,11 +394,11 @@ class Main(InteractiveScene):
         question_mark = Text("?").scale(2)
         group = VGroup(specific_question_text_1, question_mark).arrange(RIGHT)
         box = SurroundingRectangle(group, color=BLUE)
-        vgroup = VGroup(group, box).shift(UP*2)
+        vgroup = VGroup(group, box).shift(UP * 2)
         self.play(Write(group),
-                  Write(box, run_time=1*self.speed),
-                  run_time=2*self.speed)
-        self.wait(0.5*self.speed)
+                  Write(box, run_time=1 * self.speed),
+                  run_time=2 * self.speed)
+        self.wait(0.5 * self.speed)
         specific_question_text_1_2 = Text(
             "Does gene expression predict \n metabolic activity",
             alignment="center"
@@ -405,10 +406,10 @@ class Main(InteractiveScene):
         question_mark = Text("?").scale(1.5)
         group = VGroup(specific_question_text_1_2, question_mark).arrange(RIGHT)
         box = SurroundingRectangle(group, color=BLUE)
-        vgroup2 = VGroup(group, box).shift(LEFT*4).shift(UP)
+        vgroup2 = VGroup(group, box).shift(LEFT * 4).shift(UP)
         self.vom_dict["vgroup2"] = vgroup2
         self.play(ReplacementTransform(vgroup, vgroup2),
-                  run_time=1*self.speed)
+                  run_time=1 * self.speed)
         gene_expression = {
             "Gene": ["Expression"],
             "ACTN1": [0.5],
@@ -434,7 +435,7 @@ class Main(InteractiveScene):
         )
         table.next_to(vgroup2, DOWN, aligned_edge=LEFT)
         self.play(FadeIn(table),
-                  run_time=1*self.speed
+                  run_time=1 * self.speed
                   )
         remove_non_metabolic_genes_text = Text(
             "Remove non-metabolic genes",
@@ -442,32 +443,32 @@ class Main(InteractiveScene):
             color=WHITE
         ).scale(1).next_to(table, RIGHT, aligned_edge=UP)
         self.play(FadeIn(remove_non_metabolic_genes_text),
-                  run_time=1*self.speed)
+                  run_time=1 * self.speed)
         self.play(
-            removable_objects.animate.shift(RIGHT*2),
-            run_time=(0.5)*self.speed
+            removable_objects.animate.shift(RIGHT * 2),
+            run_time=(0.5) * self.speed
         )
         removable_objects_copy = removable_objects.copy()
-        removable_objects_copy.shift(UP*2).set_opacity(0.0)
+        removable_objects_copy.shift(UP * 2).set_opacity(0.0)
 
         self.play(
             Transform(removable_objects, removable_objects_copy),
-            run_time=(0.5)*self.speed
+            run_time=(0.5) * self.speed
         )
         self.play(
-            *[shift[0].animate.shift(UP*shift[3]) for shift in shift_dict.values()],
+            *[shift[0].animate.shift(UP * shift[3]) for shift in shift_dict.values()],
             FadeOut(remove_non_metabolic_genes_text),
-            run_time=(0.5)*self.speed
+            run_time=(0.5) * self.speed
         )
-        self.wait((0.5)*self.speed)
+        self.wait((0.5) * self.speed)
         GPR_text_and_arrow = VGroup(
             Text("GPR"),
             Arrow(ORIGIN, RIGHT)
         ).arrange(DOWN)
         GPR_text_and_arrow.next_to(table, RIGHT, aligned_edge=UP)
         self.play(Write(GPR_text_and_arrow),
-                  run_time=1*self.speed)
-        self.wait((0.5)*self.speed)
+                  run_time=1 * self.speed)
+        self.wait((0.5) * self.speed)
         reaction_table = {
             "Reaction": ["Expression"],
             "MAR04373": [30.9],
@@ -488,21 +489,21 @@ class Main(InteractiveScene):
         )
         reaction_table.next_to(GPR_text_and_arrow, RIGHT, aligned_edge=UP)
         self.play(FadeIn(reaction_table),
-                  run_time=1*self.speed)
+                  run_time=1 * self.speed)
         self.play(
             FadeOut(table),
-            run_time=1*self.speed
+            run_time=1 * self.speed
         )
         self.play(
             VGroup(reaction_table,
                    GPR_text_and_arrow).animate.next_to(vgroup2, DOWN, aligned_edge=LEFT),
-            run_time=1*self.speed
+            run_time=1 * self.speed
         )
         self.play(
             LaggedStart(
                 FadeOut(GPR_text_and_arrow),
                 reaction_table.animate.next_to(vgroup2, DOWN, aligned_edge=LEFT),
-                run_time=1*self.speed,
+                run_time=1 * self.speed,
                 lag_ratio=0.5
             ))
         nodes_dict = {
@@ -543,14 +544,14 @@ class Main(InteractiveScene):
         )
         full_object.next_to(reaction_table, RIGHT * 0.25)
         self.play(FadeIn(metabolic_network),
-                  run_time=1*self.speed)
+                  run_time=1 * self.speed)
         self.play(
             GrowArrow(arrows_to_grow[0]),
-            run_time=1*self.speed
+            run_time=1 * self.speed
         )
         self.play(
             GrowArrow(arrows_to_grow[1]),
-            run_time=1*self.speed
+            run_time=1 * self.speed
         )
         text_to_indicate = []
         text_to_find = ["MAR04373", "MAR04139", "MAR04145", "30.9", "592.0", "93.0"]
@@ -562,7 +563,7 @@ class Main(InteractiveScene):
         self.play(
             *[Indicate(line) for line in highlighted_edges[0]],
             *[Indicate(text) for text in text_to_indicate],
-            run_time=2*self.speed
+            run_time=2 * self.speed
         )
         text_to_indicate = []
         text_to_find = ["MAR04379", "MAR04363", "9.5", "1.2"]
@@ -574,19 +575,18 @@ class Main(InteractiveScene):
         self.play(
             *[Indicate(line) for line in highlighted_edges[1]],
             *[Indicate(text) for text in text_to_indicate],
-            run_time=2*self.speed
+            run_time=2 * self.speed
         )
         full_subscene = VGroup(vgroup2,
                                reaction_table,
                                full_object)
         box = SurroundingRectangle(full_subscene, color=BLUE)
         self.play(Write(box),
-                    run_time=1*self.speed)
+                  run_time=1 * self.speed)
         self.vom_dict["reaction_table"] = reaction_table
         self.vom_dict["metabolic_network"] = metabolic_network
         self.vom_dict["full_object"] = full_object
         self.vom_dict["box_question_1"] = box
-
 
     def create_sample_clustering_graph(self):
         #### create clustering tsne
@@ -602,50 +602,50 @@ class Main(InteractiveScene):
         ).scale(1)
         sample_clustering_text.next_to(vgroup, DOWN, aligned_edge=LEFT)
         num_points = 20
-        rect = Rectangle(width=vgroup.get_width()/2, height=height_new_box, color=BLUE)
+        rect = Rectangle(width=vgroup.get_width() / 2, height=height_new_box, color=BLUE)
         self.vom_dict["cluster_rect"] = rect
         rect.next_to(sample_clustering_text, DOWN, aligned_edge=LEFT)
         sample_clustering_text.next_to(rect, UP, aligned_edge=ORIGIN)
-        rect_center = rect.get_center() - np.array([rect.get_width()/4, rect.get_height()/6, 0])
+        rect_center = rect.get_center() - np.array([rect.get_width() / 4, rect.get_height() / 6, 0])
         points_2d_normal_distribution = np.random.normal(loc=(rect_center[0], rect_center[1]), scale=0.2, size=(num_points, 2))
 
-        new_center = rect.get_center() + np.array([rect.get_width()/9, -rect.get_height()/10, 0])
+        new_center = rect.get_center() + np.array([rect.get_width() / 9, -rect.get_height() / 10, 0])
         new_points = np.random.normal(loc=(new_center[0], new_center[1]), scale=0.2, size=(num_points, 2))
         self.play(ShowCreation(rect),
                   FadeIn(sample_clustering_text),
-                  run_time=1*self.speed)
-        self.wait(0.5*self.speed)
+                  run_time=1 * self.speed)
+        self.wait(0.5 * self.speed)
         dots = [Dot((point[0], point[1], 0), radius=0.05,
                     fill_color=PURPLE) for point in points_2d_normal_distribution]
 
         legend_dot_1 = Dot(radius=0.05, fill_color=PURPLE)
         legend_dot_2 = Dot(radius=0.05, fill_color=ORANGE)
-        legend_text_1 = Text("Cluster 1", color=PURPLE, font_size= 18).scale(1)
-        legend_text_2 = Text("Cluster 2", color =ORANGE, font_size=18).scale(1)
+        legend_text_1 = Text("Cluster 1", color=PURPLE, font_size=18).scale(1)
+        legend_text_2 = Text("Cluster 2", color=ORANGE, font_size=18).scale(1)
         legend_1 = VGroup(legend_dot_1, legend_text_1).arrange(RIGHT, buff=0.09)
         legend_2 = VGroup(legend_dot_2, legend_text_2).arrange(RIGHT, buff=0.09)
         legend = VGroup(legend_1, legend_2).arrange(DOWN)
-        legend.next_to(rect.get_right(), LEFT, aligned_edge=RIGHT).shift(UP*0.5).shift(RIGHT*0.15)
+        legend.next_to(rect.get_right(), LEFT, aligned_edge=RIGHT).shift(UP * 0.5).shift(RIGHT * 0.15)
         self.play(FadeIn(dots[0]),
-                  run_time=0.2*self.speed)
-        dots = dots[1:]
+                  run_time=0.1 * self.speed)
         self.play(Write(legend),
-                  run_time=0.2*self.speed)
-        [self.play(FadeIn(dot), run_time = (0.2)*self.speed) for dot in dots]
-        self.wait(0.5*self.speed)
-        dots_new = [Dot((point[0], point[1], 0),radius=0.05,
-                        color = ORANGE, fill_color=ORANGE) for
+                  run_time=0.1 * self.speed)
+        [self.play(FadeIn(dot), run_time=(0.2) * self.speed) for dot in dots[1:]]
+        self.wait(0.5 * self.speed)
+        dots_new = [Dot((point[0], point[1], 0), radius=0.05,
+                        color=ORANGE, fill_color=ORANGE) for
                     point in new_points]
-        [self.play(FadeIn(dot), run_time = (0.2)*self.speed) for dot in dots_new]
+        [self.play(FadeIn(dot), run_time=(0.2) * self.speed) for dot in dots_new]
         clustering_graph = VGroup(legend, rect, sample_clustering_text, *dots, *dots_new)
         self.vom_dict["clustering_graph"] = clustering_graph
 
-    general_speed_multiplier = 6
+    general_speed_multiplier = 1
     speed = 1 / general_speed_multiplier
+
     def construct(self):
         ### start
         self.vom_dict = {}
-        # self.intro()
+        self.intro()
         self.does_gene_expression_predict_metabolic_activity()
 
         specific_question_text_2 = Text(
@@ -656,12 +656,12 @@ class Main(InteractiveScene):
         group = VGroup(specific_question_text_2, question_mark).arrange(RIGHT)
         box = SurroundingRectangle(group, color=BLUE)
         vgroup = VGroup(group, box)
-        vgroup.next_to(self.vom_dict["vgroup2"], RIGHT*2)
+        vgroup.next_to(self.vom_dict["vgroup2"], RIGHT * 2)
         self.vom_dict["prediction_question"] = vgroup
         self.play(Write(group),
-                  Write(box, run_time=1*self.speed),
-                  run_time=2*self.speed)
-        self.wait(0.5*self.speed)
+                  Write(box, run_time=1 * self.speed),
+                  run_time=2 * self.speed)
+        self.wait(0.5 * self.speed)
 
         vgroup_3 = self.vom_dict["prediction_question"]
         height_box = self.vom_dict["box_question_1"].get_height()
@@ -676,13 +676,13 @@ class Main(InteractiveScene):
             font_size=20
         ).scale(1)
         chararacteristics_text.next_to(vgroup, DOWN, aligned_edge=RIGHT)
-        char_rect = Rectangle(width=vgroup.get_width()/2, height=height_new_box, color=BLUE)
+        char_rect = Rectangle(width=vgroup.get_width() / 2, height=height_new_box, color=BLUE)
         char_rect.next_to(chararacteristics_text, DOWN, aligned_edge=LEFT)
         chararacteristics_text.next_to(char_rect, UP, aligned_edge=ORIGIN)
         char_rect.next_to(self.vom_dict["cluster_rect"], RIGHT, aligned_edge=UP, buff=0.1)
         self.play(ShowCreation(char_rect),
-                    FadeIn(chararacteristics_text),
-                    run_time=1*self.speed)
+                  FadeIn(chararacteristics_text),
+                  run_time=1 * self.speed)
 
         ### more complicated toy network with different opacity or colours for things being chosen more or less (linetrace
         ### network_on_grid
@@ -756,19 +756,19 @@ class Main(InteractiveScene):
         }
 
         json_file_name = {
-            "edges":"data/edges_dict.json",
-            "nodes":"data/nodes_dict.json",
-            "node_paths":"data/node_paths.json",
-            "random_paths_J1":"data/random_paths_J1.json",
-            "random_paths_E4":"data/random_paths_E4.json"
+            "edges": "data/edges_dict.json",
+            "nodes": "data/nodes_dict.json",
+            "node_paths": "data/node_paths.json",
+            "random_paths_J1": "data/random_paths_J1.json",
+            "random_paths_E4": "data/random_paths_E4.json"
         }
         if any([not os.path.exists(file) for file in json_file_name.values()]):
             (new_nodes_dict,
-              new_edges_dict,
-              node_paths,
-              random_paths_J1,
-                random_paths_E4
-            ) = Utils.create_connected_network(nodes_dict, "J1", "E4")
+             new_edges_dict,
+             node_paths,
+             random_paths_J1,
+             random_paths_E4
+             ) = Utils.create_connected_network(nodes_dict, "J1", "E4")
             with open(json_file_name["edges"], "w") as f:
                 json.dump(new_edges_dict, f)
             with open(json_file_name["nodes"], "w") as f:
@@ -792,8 +792,8 @@ class Main(InteractiveScene):
                 random_paths_E4 = json.load(f)
 
         sample_N = 200
-        initial_runtime = 0.5
-        last_runtime = 0.001
+        initial_runtime = 0.08
+        last_runtime = 0.0001
         exponential_runtimes = np.exp(np.linspace(np.log(initial_runtime), np.log(last_runtime), sample_N))
         circle_settings = {
             "radius": 0.11,
@@ -822,9 +822,9 @@ class Main(InteractiveScene):
             scale=0.18,
             expression_settings=None,
             paths=None,
-            node_paths = node_paths
+            node_paths=node_paths
         )
-        full_object.next_to(char_rect.get_left(), RIGHT, aligned_edge=LEFT).shift(LEFT*0.2)
+        full_object.next_to(char_rect.get_left(), RIGHT, aligned_edge=LEFT).shift(LEFT * 0.2)
         full_object.move_to(char_rect.get_center())
 
         self.add(full_object)
@@ -834,7 +834,7 @@ class Main(InteractiveScene):
         alpha = 0.05
 
         def custom_line_indicate_animation_only_width(obj, color, scale_factor=2):
-            assert(isinstance(obj, Line))
+            assert (isinstance(obj, Line))
             current_color = obj.get_color()
             current_width = obj.get_stroke_width()
             new_width = current_width * scale_factor
@@ -844,7 +844,6 @@ class Main(InteractiveScene):
                 ApplyMethod(obj.set_stroke, current_color, old_width),
             )
             return func
-
 
         dict_with_highlights_and_color_gradient = {}
         for path in highlighted_edges:
@@ -856,7 +855,7 @@ class Main(InteractiveScene):
                 random_path_idx = np.random.randint(len(random_paths_J1))
                 color = PURPLE
                 for obj in highlighted_edges[random_path_idx]:
-                    dict_with_highlights_and_color_gradient[obj][0] += 1/sample_N
+                    dict_with_highlights_and_color_gradient[obj][0] += 1 / sample_N
                     new_color = (color_to_rgb(obj.get_color()) + alpha * (purple_ - color_to_rgb(obj.get_color())))
                     obj.set_color(rgb_to_color(new_color))
                 for arrow in arrows_to_grow:
@@ -866,18 +865,17 @@ class Main(InteractiveScene):
                 random_path_idx = np.random.randint(len(random_paths_E4)) + len(random_paths_J1)
                 color = ORANGE
                 for obj in highlighted_edges[random_path_idx]:
-                    dict_with_highlights_and_color_gradient[obj][1] += 1/sample_N
+                    dict_with_highlights_and_color_gradient[obj][1] += 1 / sample_N
                     new_color = (color_to_rgb(obj.get_color()) + alpha * (orange_ - color_to_rgb(obj.get_color())))
                     obj.set_color(rgb_to_color(new_color))
                 for arrow in arrows_to_grow:
                     new_color = (color_to_rgb(arrow.get_color()) + alpha * (purple_ - color_to_rgb(arrow.get_color())))
                     arrow.set_color(rgb_to_color(new_color))
             run_time = exponential_runtimes[idx]
-            if run_time > 0.01:
-                self.play(*[Indicate(obj, color=color, scale_factor = 1.2) for obj in highlighted_edges[random_path_idx]],
-                          run_time=run_time * self.speed)
-            else:
-                continue
+            self.play(*[Indicate(obj, color=color, scale_factor=1.2) for obj in highlighted_edges[random_path_idx]],
+                      run_time=run_time * self.speed)
+            # else:
+            #     continue
 
         nodes_to_indicate_and_fade_out = []
         lines_to_indicate_and_fade_out = []
@@ -901,48 +899,59 @@ class Main(InteractiveScene):
 
         self.play(
             *[Indicate(obj, color=BLUE, scale_factor=2) for obj in nodes_to_indicate_and_fade_out],
-            run_time=3 * self.speed,
+            run_time=2 * self.speed,
         )
         self.play(
-            *[custom_line_indicate_animation_only_width(obj, color=WHITE, scale_factor = 1.5) for obj in lines_to_indicate_and_fade_out],
-            run_time=3 * self.speed,
+            *[custom_line_indicate_animation_only_width(obj, color=WHITE, scale_factor=1.5) for obj in lines_to_indicate_and_fade_out],
+            run_time=2 * self.speed,
         )
         self.play(
             *[FadeOut(obj) for obj in nodes_to_indicate_and_fade_out],
             *[FadeOut(obj) for obj in lines_to_indicate_and_fade_out],
         )
         full_subscene = VGroup(vgroup_3,
-                                 char_rect,
-                                 chararacteristics_text,
-                                 full_object)
+                               char_rect,
+                               chararacteristics_text,
+                               full_object)
         box = SurroundingRectangle(full_subscene, color=BLUE)
         box_1 = self.vom_dict["box_question_1"]
         box.stretch_to_fit_height(box_1.get_height())
         box.next_to(box_1, RIGHT, aligned_edge=UP)
         self.play(Write(box),
-                  run_time=1*self.speed)
+                  run_time=1 * self.speed)
 
         self.vom_dict["box_question_2"] = box
         self.vom_dict["characteristics_subscene"] = full_subscene
-        self.wait(1*self.speed)
+        self.wait(1 * self.speed)
 
         box_1_copy = box_1.copy()
         box_1_copy.set_stroke(width=10)
-        self.play(ShowPassingFlash(box_1_copy, time_width=0.5, run_time=10*self.speed))
-        self.wait(1*self.speed)
+        self.play(ShowPassingFlash(box_1_copy, time_width=0.5, run_time=2 * self.speed))
+        self.wait(1 * self.speed)
+        clustering_graph = self.vom_dict["clustering_graph"]
         self.play(FadeOut(full_subscene),
-                    run_time=1*self.speed)
-        #
+                  FadeOut(box),
+                  FadeOut(clustering_graph),
+                  run_time=1 * self.speed)
+        self.wait(1 * self.speed)
+
+        self.play(
+            FadeOut(self.vom_dict["vgroup2"]),
+            FadeOut(self.vom_dict["reaction_table"]),
+            FadeOut(self.vom_dict["metabolic_network"]),
+            FadeOut(self.vom_dict["full_object"]),
+            FadeOut(self.vom_dict["prediction_question"]),
+            FadeOut(self.vom_dict["box_question_1"]),
+            run_time=1 * self.speed
+        )
+
+
         # specific_question_text_3 = Text(
         #     "Do these differences resemble underlying biology?"
         # ).scale(0.5)
 
-
-
         # self.play(text_route_optimization.animate.shift(UP*3),
         #             run_time=1*self.speed)
-
-
 
         # metabolic_network = Text(
         #     "Metabolic Network",
@@ -990,8 +999,6 @@ class Main(InteractiveScene):
         #
 
 
-
-
 if __name__ == "__main__":
-    subprocess.run(["manimgl", "SRC/main.py", "Main", "-e"])
+    subprocess.run(["manimgl", "SRC/main.py", "Main", "-e", "--full_screen"])
     # checkpoint_paste()
