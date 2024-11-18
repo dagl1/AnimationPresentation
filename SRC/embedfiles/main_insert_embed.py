@@ -369,6 +369,7 @@ class Utils:
 class Main(InteractiveScene):
 
     def intro(self):
+    self.embed()
         ### start intro
         text_macsbio = Text(
             "MaCSBio",
@@ -787,7 +788,7 @@ class Main(InteractiveScene):
                 random_paths_E4 = json.load(f)
 
         sample_N = 200
-        initial_runtime = 0.25
+        initial_runtime = 0.1
         last_runtime = 0.01
         exponential_runtimes = np.exp(np.linspace(np.log(initial_runtime), np.log(last_runtime), sample_N))
         circle_settings = {
@@ -892,14 +893,13 @@ class Main(InteractiveScene):
                     lines_in_highlighted_edges.append(obj)
 
             self.play(
-                *[custom_node_indicate_animation(
-                    obj, color=color, scale_factor=2
-                ) for obj in nodes_in_highlighted_edges],
-                *[custom_line_indicate_animation_only_width(
-                    obj, color=color, scale_factor=2)
-                    for obj in lines_in_highlighted_edges],
+                *[custom_node_indicate_animation(obj, color=color, scale_factor=1.5) for obj in nodes_in_highlighted_edges],
+                *[custom_line_indicate_animation_only_width(obj, color=color, scale_factor=1.5) for obj in lines_in_highlighted_edges],
                 run_time=run_time * self.speed
             )
+
+            # self.play(*[Indicate(obj, color=color, scale_factor=1.2) for obj in highlighted_edges[random_path_idx]],
+            #           run_time=run_time * self.speed)
 
         nodes_to_indicate_and_fade_out = []
         lines_to_indicate_and_fade_out = []
@@ -922,9 +922,8 @@ class Main(InteractiveScene):
                     lines_to_indicate_and_fade_out.append(obj)
 
         self.play(
-            *[custom_line_indicate_animation_only_width(
-                obj, color=WHITE, scale_factor=2) for obj in lines_to_indicate_and_fade_out],
-            run_time=1.5 * self.speed,
+            *[custom_line_indicate_animation_only_width(obj, color=WHITE, scale_factor=1.5) for obj in lines_to_indicate_and_fade_out],
+            run_time=2 * self.speed,
         )
         self.play(
             *[FadeOut(obj) for obj in nodes_to_indicate_and_fade_out],
@@ -954,7 +953,7 @@ class Main(InteractiveScene):
         self.vom_dict["chararacteristics_text"] = chararacteristics_text
         self.vom_dict["box_1"] = box_1
 
-    general_speed_multiplier = 1
+    general_speed_multiplier = 2
     speed = 1 / general_speed_multiplier
 
     def construct(self):
@@ -1051,7 +1050,7 @@ class Main(InteractiveScene):
 
 
 if __name__ == "__main__":
-    subprocess.run(["manimgl", "SRC/main.py", "Main", "-f",
+    subprocess.run(["manimgl", "SRC/main.py", "Main", "-ef",
                     # "--full_screen"
                     ])
     # subprocess.run([
