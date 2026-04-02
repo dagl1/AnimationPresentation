@@ -1,2 +1,38 @@
-/.venv/
-/.idea/
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+.idea/
+**/__pycache__/
+
+# Virtual environments
+.venv/
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info
+
+# Pytest cache
+.pytest_cache/
+
+# mypy
+.mypy_cache/
+
+# VSCode / PyCharm settings
+.vscode/
+
+# Misc
+*.log
+* text=auto
+
+# Ignore environment variable files
+node_modules/
+
+# Sphinx
+docs/build/
+docs/source/_build/

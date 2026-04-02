@@ -1,21 +1,21 @@
-from SRC.Utilities import Utilities, find_optimal_line_breaks, split_text_by_width
-from manimlib import *
-import numpy as np
-import subprocess
-import random
 import json
+import random
+import subprocess
+
+import numpy as np
+from manimlib import *
+
 
 class Utils:
     @staticmethod
     def create_table_with_removable_objects(
-            data: list[list] or dict,
-            removable_keys: list[str],
-            fontsize: int = 28,
-            x_buff: float = 0.3,
-            y_buff: float = 0.5,
-            header_row_present: bool = True,
-            scale: float = 1,
-            font: str = "Arial"
+        data: list[list] or dict,
+        removable_keys: list[str],
+        fontsize: int = 28,
+        x_buff: float = 0.3,
+        y_buff: float = 0.5,
+        header_row_present: bool = True,
+        scale: float = 1,
     ):
         amount_of_columns = len(list(data.values())[0]) + 1
         amount_of_rows = len(data)
@@ -28,8 +28,8 @@ class Utils:
                     value = list(data.keys())[j]
                 else:
                     value = str(list(data.values())[j][i - 1])
-                max_x = max(max_x, Text(value, font_size=fontsize, font = font).get_width())
-                max_y = max(max_y, Text(value, font_size=fontsize, font = font).get_height())
+                max_x = max(max_x, Text(value, font_size=fontsize).get_width())
+                max_y = max(max_y, Text(value, font_size=fontsize).get_height())
         x_size = max_x + x_buff
         y_size = max_y + y_buff
         table = VGroup()
@@ -43,9 +43,14 @@ class Utils:
                     value = list(data.keys())[j]
                 else:
                     value = str(list(data.values())[j][i - 1])
-                text = Text(value, alignment="center", font_size=fontsize, font = font)
-                cell_bg = Rectangle(width=x_size, height=y_size,
-                                    fill_color=WHITE, fill_opacity=0.0, stroke_width=1)
+                text = Text(value, alignment="center", font_size=fontsize)
+                cell_bg = Rectangle(
+                    width=x_size,
+                    height=y_size,
+                    fill_color=WHITE,
+                    fill_opacity=0.0,
+                    stroke_width=1,
+                )
                 text.move_to(cell_bg.get_center())
                 cell = VGroup(cell_bg, text)
                 column.add(cell)
@@ -77,16 +82,15 @@ class Utils:
 
     @staticmethod
     def create_metabolic_network(
-            nodes_dict: dict,
-            edges_dict: dict,
-            circle_settings: dict = None,
-            line_settings: dict = None,
-            arrow_settings: dict = None,
-            scale: float = 1,
-            expression_settings: dict = None,
-            paths: list = None,
-            node_paths: list = None,
-            font: str = "Arial"
+        nodes_dict: dict,
+        edges_dict: dict,
+        circle_settings: dict = None,
+        line_settings: dict = None,
+        arrow_settings: dict = None,
+        scale: float = 1,
+        expression_settings: dict = None,
+        paths: list = None,
+        node_paths: list = None,
     ):
         circle_settings_default = {
             "radius": 0.2,
@@ -116,27 +120,43 @@ class Utils:
             circle_settings = circle_settings_default
         circle_radius = circle_settings.get("radius", circle_settings_default["radius"])
         circle_color = circle_settings.get("color", circle_settings_default["color"])
-        circle_fill_color = circle_settings.get("fill_color", circle_settings_default["fill_color"])
-        circle_fill_opacity = circle_settings.get("fill_opacity", circle_settings_default["fill_opacity"])
-        circle_stroke_width = circle_settings.get("stroke_width", circle_settings_default["stroke_width"])
+        circle_fill_color = circle_settings.get(
+            "fill_color", circle_settings_default["fill_color"]
+        )
+        circle_fill_opacity = circle_settings.get(
+            "fill_opacity", circle_settings_default["fill_opacity"]
+        )
+        circle_stroke_width = circle_settings.get(
+            "stroke_width", circle_settings_default["stroke_width"]
+        )
 
         if line_settings is None:
             line_settings = line_settings_default
         edge_width = line_settings.get("width", line_settings_default["width"])
         edge_color = line_settings.get("color", line_settings_default["color"])
-        edge_fill_opacity = line_settings.get("fill_opacity", line_settings_default["fill_opacity"])
+        edge_fill_opacity = line_settings.get(
+            "fill_opacity", line_settings_default["fill_opacity"]
+        )
 
         if arrow_settings is None:
             arrow_settings = arrow_settings_default
         arrow_color = arrow_settings.get("color", arrow_settings_default["color"])
-        arrow_stroke_width = arrow_settings.get("stroke_width", arrow_settings_default["stroke_width"])
+        arrow_stroke_width = arrow_settings.get(
+            "stroke_width", arrow_settings_default["stroke_width"]
+        )
 
         if expression_settings is None:
             expression_settings = expression_settings_default
-        show_edge_expression = expression_settings.get("show_edge_expression", expression_settings_default["show_edge_expression"])
-        font_size = expression_settings.get("font size", expression_settings_default["font size"])
+        show_edge_expression = expression_settings.get(
+            "show_edge_expression", expression_settings_default["show_edge_expression"]
+        )
+        font_size = expression_settings.get(
+            "font size", expression_settings_default["font size"]
+        )
         color = expression_settings.get("color", expression_settings_default["color"])
-        distance_from_line = expression_settings.get("distance from line", expression_settings_default["distance from line"])
+        distance_from_line = expression_settings.get(
+            "distance from line", expression_settings_default["distance from line"]
+        )
 
         show_path_to_highlight = True if paths is not None else False
         show_node_paths = True if node_paths is not None else False
@@ -160,7 +180,7 @@ class Utils:
             if show_path_to_highlight:
                 for idx, path in enumerate(paths):
                     if any(node in path_vars for path_vars in path) and (
-                            node not in highlighted_edges[idx]
+                        node not in highlighted_edges[idx]
                     ):
                         highlighted_edges[idx].append(circle)
             if show_node_paths:
@@ -177,56 +197,59 @@ class Utils:
             start = list[0][0]
             end = list[0][1]
             if start == "":
-                arrow = Arrow(nodes.get(end).get_left() + LEFT * 0.9,
-                              nodes.get(end).get_center() + RIGHT * 0.05)
-                arrow.set_stroke(
-                    color=arrow_color,
-                    width=arrow_stroke_width
+                arrow = Arrow(
+                    nodes.get(end).get_left() + LEFT * 0.9,
+                    nodes.get(end).get_center() + RIGHT * 0.05,
                 )
+                arrow.set_stroke(color=arrow_color, width=arrow_stroke_width)
                 arrows.append(arrow)
             elif end == "":
-                arrow = Arrow(nodes.get(start).get_center() + LEFT * 0.05,
-                              nodes.get(start).get_right() + RIGHT * 0.9)
-                arrow.set_stroke(
-                    color=arrow_color,
-                    width=arrow_stroke_width
+                arrow = Arrow(
+                    nodes.get(start).get_center() + LEFT * 0.05,
+                    nodes.get(start).get_right() + RIGHT * 0.9,
                 )
+                arrow.set_stroke(color=arrow_color, width=arrow_stroke_width)
                 arrows.append(arrow)
             else:
-                full_line = Line(nodes[start].get_center(),
-                                 nodes[end].get_center())
+                full_line = Line(nodes[start].get_center(), nodes[end].get_center())
                 vector = full_line.get_unit_vector()
                 start_node_radius = nodes[start].get_radius()
                 end_node_radius = nodes[end].get_radius()
 
                 new_line = Line(
                     nodes[start].get_center() + vector * start_node_radius,
-                    nodes[end].get_center() - vector * end_node_radius
+                    nodes[end].get_center() - vector * end_node_radius,
                 )
-                new_line.set_stroke(
-                    color=edge_color,
-                    width=edge_width
-                )
+                new_line.set_stroke(color=edge_color, width=edge_width)
                 edges[edge] = new_line
                 if show_edge_expression:
                     if expression is not None:
                         expression_text = Text(
-                            str(expression),
-                            font_size=font_size,
-                            color=color,
-                            font = font
+                            str(expression), font_size=font_size, color=color
                         )
-                        tangential_vector = np.array([new_line.get_unit_vector()[1], - new_line.get_unit_vector()[0], 0])
-                        if np.dot(tangential_vector, middle_of_nodes - new_line.get_center()) > 0:
+                        tangential_vector = np.array(
+                            [new_line.get_unit_vector()[1], -new_line.get_unit_vector()[0], 0]
+                        )
+                        if (
+                            np.dot(tangential_vector, middle_of_nodes - new_line.get_center())
+                            > 0
+                        ):
                             tangential_vector = -tangential_vector
-                        if any([abs(value) >= 0.9 and abs(value) <= 1.1 for value in tangential_vector]):
+                        if any(
+                            [
+                                abs(value) >= 0.9 and abs(value) <= 1.1
+                                for value in tangential_vector
+                            ]
+                        ):
                             distance_to_use = distance_from_line * 1.5
                         else:
                             distance_to_use = distance_from_line
-                        expression_text.next_to(new_line.get_center(),
-                                                tangential_vector,
-                                                buff=distance_to_use,
-                                                aligned_edge=ORIGIN)
+                        expression_text.next_to(
+                            new_line.get_center(),
+                            tangential_vector,
+                            buff=distance_to_use,
+                            aligned_edge=ORIGIN,
+                        )
 
                         edges[edge + "_text"] = expression_text
 
@@ -246,7 +269,7 @@ class Utils:
             edges,
             highlighted_edges,
             arrows,
-            full_object
+            full_object,
         )
 
     @staticmethod
@@ -275,7 +298,7 @@ class Utils:
                 if x_2 == x_1:
                     continue
                 y_2 = value_2[1]
-                distance = np.sqrt(((x_1 - x_2) * 2) ** 2 + ((y_1 - y_2)) ** 2)
+                distance = np.sqrt(((x_1 - x_2) * 2) ** 2 + (y_1 - y_2) ** 2)
                 probability = probability_function(distance)
                 # print(f"{node}>{node_2}, Distance: {distance}, Probability: {probability}")
                 if np.random.rand() > probability:
@@ -312,8 +335,8 @@ class Utils:
         for IN_node in IN_nodes:
             for OUT_node in OUT_nodes:
                 paths = find_paths(graph, IN_node, OUT_node)
-                paths = [path[:-1] for path in paths]  #remove last element
-                paths = [path[1:] for path in paths]  #remove first element
+                paths = [path[:-1] for path in paths]  # remove last element
+                paths = [path[1:] for path in paths]  # remove first element
                 if len(total_paths) == 0:
                     total_paths = paths
                 else:
@@ -323,7 +346,7 @@ class Utils:
                         if path in paths:
                             new_total_paths.append(path)
                     total_paths = new_total_paths
-                print(f'IN: {IN_node}, OUT: {OUT_node}, len: {len(total_paths)}')
+                print(f"IN: {IN_node}, OUT: {OUT_node}, len: {len(total_paths)}")
         paths_through_J1 = [path for path in total_paths if f"{through_node_1}" in path]
         paths_through_E4 = [path for path in total_paths if f"{through_node_2}" in path]
 
@@ -340,7 +363,9 @@ class Utils:
             unique_nodes = list(set(path))
             nodes_in_paths.extend(unique_nodes)
             nodes_in_paths = list(set(nodes_in_paths))
-        nodes_not_in_paths = [node for node in nodes_dict.keys() if node not in nodes_in_paths]
+        nodes_not_in_paths = [
+            node for node in nodes_dict.keys() if node not in nodes_in_paths
+        ]
 
         new_edges_dict = {}
         for key, list_ in edges_dict.items():
@@ -359,64 +384,47 @@ class Utils:
             if node in nodes_not_in_paths:
                 continue
             new_nodes_dict[node] = value
-        return (
-            new_nodes_dict,
-            new_edges_dict,
-            node_paths,
-            random_paths_J1,
-            random_paths_E4
-        )
+        print(new_nodes_dict)
+        return (new_nodes_dict, new_edges_dict, node_paths, random_paths_J1, random_paths_E4)
 
 
 class Main(InteractiveScene):
-
-    main_font = "Arial"
     def intro(self):
         ### start intro
         text_macsbio = Text(
             "MaCSBio",
-            font = self.main_font,
         ).scale(1)
         # text_macsbio.to_edge(UP)
-        self.play(Write(text_macsbio),
-                  run_time=3 * self.speed)
+        self.play(Write(text_macsbio), run_time=3 * self.speed)
         text_route_optimization = Text(
             "Route Optimizations",
-            font = self.main_font,
         ).scale(1)
         text_route_optimization.next_to(text_macsbio, DOWN)
-        self.play(Write(text_route_optimization),
-                  run_time=3 * self.speed)
+        self.play(Write(text_route_optimization), run_time=3 * self.speed)
         self.wait(1 * self.speed)
-        self.play(FadeOut(text_macsbio),
-                  FadeOut(text_route_optimization),
-                  run_time=1 * self.speed)
+        self.play(
+            FadeOut(text_macsbio), FadeOut(text_route_optimization), run_time=1 * self.speed
+        )
 
     def does_gene_expression_predict_metabolic_activity(self):
         specific_question_text_1 = Text(
             "Does gene expression predict metabolic activity",
-            font=self.main_font,
         ).scale(0.6)
         question_mark = Text("?").scale(2)
         group = VGroup(specific_question_text_1, question_mark).arrange(RIGHT)
         box = SurroundingRectangle(group, color=BLUE)
         vgroup = VGroup(group, box).shift(UP * 2)
-        self.play(Write(group),
-                  Write(box, run_time=1 * self.speed),
-                  run_time=2 * self.speed)
+        self.play(Write(group), Write(box, run_time=1 * self.speed), run_time=2 * self.speed)
         self.wait(0.5 * self.speed)
         specific_question_text_1_2 = Text(
-            "Does gene expression predict \n metabolic activity",
-            font =self.main_font,
-            alignment="center"
+            "Does gene expression predict \n metabolic activity", alignment="center"
         ).scale(0.5)
-        question_mark = Text("?", font = self.main_font).scale(1.5)
+        question_mark = Text("?").scale(1.5)
         group = VGroup(specific_question_text_1_2, question_mark).arrange(RIGHT)
         box = SurroundingRectangle(group, color=BLUE)
         vgroup2 = VGroup(group, box).shift(LEFT * 4).shift(UP)
         self.vom_dict["vgroup2"] = vgroup2
-        self.play(ReplacementTransform(vgroup, vgroup2),
-                  run_time=1 * self.speed)
+        self.play(ReplacementTransform(vgroup, vgroup2), run_time=1 * self.speed)
         gene_expression = {
             "Gene": ["Expression"],
             "ACTN1": [0.5],
@@ -430,8 +438,7 @@ class Main(InteractiveScene):
             "CS": [93.0],
         }
         removable_keys = ["ACTN1", "ACTN2", "HDAC1", "METTL16"]
-        (table, removable_objects, shift_dict
-         ) = Utils.create_table_with_removable_objects(
+        (table, removable_objects, shift_dict) = Utils.create_table_with_removable_objects(
             data=gene_expression,
             removable_keys=removable_keys,
             fontsize=12,
@@ -441,41 +448,29 @@ class Main(InteractiveScene):
             scale=1,
         )
         table.next_to(vgroup2, DOWN, aligned_edge=LEFT)
-        self.play(FadeIn(table),
-                  run_time=1 * self.speed
-                  )
-        remove_non_metabolic_genes_text = Text(
-            "Remove non-metabolic genes",
-            font = self.main_font,
-            font_size=18,
-            color=WHITE
-        ).scale(1).next_to(table, RIGHT, aligned_edge=UP)
-        self.play(FadeIn(remove_non_metabolic_genes_text),
-                  run_time=1 * self.speed)
-        self.play(
-            removable_objects.animate.shift(RIGHT * 2),
-            run_time=(0.5) * self.speed
+        self.play(FadeIn(table), run_time=1 * self.speed)
+        remove_non_metabolic_genes_text = (
+            Text("Remove non-metabolic genes", font_size=18, color=WHITE)
+            .scale(1)
+            .next_to(table, RIGHT, aligned_edge=UP)
         )
+        self.play(FadeIn(remove_non_metabolic_genes_text), run_time=1 * self.speed)
+        self.play(removable_objects.animate.shift(RIGHT * 2), run_time=(0.5) * self.speed)
         removable_objects_copy = removable_objects.copy()
         removable_objects_copy.shift(UP * 2).set_opacity(0.0)
 
         self.play(
-            Transform(removable_objects, removable_objects_copy),
-            run_time=(0.5) * self.speed
+            Transform(removable_objects, removable_objects_copy), run_time=(0.5) * self.speed
         )
         self.play(
             *[shift[0].animate.shift(UP * shift[3]) for shift in shift_dict.values()],
             FadeOut(remove_non_metabolic_genes_text),
-            run_time=(0.5) * self.speed
+            run_time=(0.5) * self.speed,
         )
         self.wait((0.5) * self.speed)
-        GPR_text_and_arrow = VGroup(
-            Text("GPR", font = self.main_font),
-            Arrow(ORIGIN, RIGHT)
-        ).arrange(DOWN)
+        GPR_text_and_arrow = VGroup(Text("GPR"), Arrow(ORIGIN, RIGHT)).arrange(DOWN)
         GPR_text_and_arrow.next_to(table, RIGHT, aligned_edge=UP)
-        self.play(Write(GPR_text_and_arrow),
-                  run_time=1 * self.speed)
+        self.play(Write(GPR_text_and_arrow), run_time=1 * self.speed)
         self.wait((0.5) * self.speed)
         reaction_table = {
             "Reaction": ["Expression"],
@@ -485,35 +480,34 @@ class Main(InteractiveScene):
             "MAR04139": [592.0],
             "MAR04145": [93.0],
         }
-        (reaction_table, reaction_table_removable_objects, reaction_table_shift_dict
-         ) = Utils.create_table_with_removable_objects(
-            data=reaction_table,
-            removable_keys=[],
-            fontsize=12,
-            x_buff=0.1,
-            y_buff=0.3,
-            header_row_present=True,
-            scale=1,
+        (reaction_table, reaction_table_removable_objects, reaction_table_shift_dict) = (
+            Utils.create_table_with_removable_objects(
+                data=reaction_table,
+                removable_keys=[],
+                fontsize=12,
+                x_buff=0.1,
+                y_buff=0.3,
+                header_row_present=True,
+                scale=1,
+            )
         )
         reaction_table.next_to(GPR_text_and_arrow, RIGHT, aligned_edge=UP)
-        self.play(FadeIn(reaction_table),
-                  run_time=1 * self.speed)
+        self.play(FadeIn(reaction_table), run_time=1 * self.speed)
+        self.play(FadeOut(table), run_time=1 * self.speed)
         self.play(
-            FadeOut(table),
-            run_time=1 * self.speed
-        )
-        self.play(
-            VGroup(reaction_table,
-                   GPR_text_and_arrow).animate.next_to(vgroup2, DOWN, aligned_edge=LEFT),
-            run_time=1 * self.speed
+            VGroup(reaction_table, GPR_text_and_arrow).animate.next_to(
+                vgroup2, DOWN, aligned_edge=LEFT
+            ),
+            run_time=1 * self.speed,
         )
         self.play(
             LaggedStart(
                 FadeOut(GPR_text_and_arrow),
                 reaction_table.animate.next_to(vgroup2, DOWN, aligned_edge=LEFT),
                 run_time=1 * self.speed,
-                lag_ratio=0.5
-            ))
+                lag_ratio=0.5,
+            )
+        )
         nodes_dict = {
             "A": [0, 1, 0],
             "B": [1, 2, 0],
@@ -534,63 +528,48 @@ class Main(InteractiveScene):
             ["AB", "BC", "CE"],
             ["AD", "DE"],
         ]
-        (
-            metabolic_network,
-            nodes,
-            edges,
-            highlighted_edges,
-            arrows_to_grow,
-            full_object
-        ) = Utils.create_metabolic_network(
-            nodes_dict=nodes_dict,
-            edges_dict=edges_dict,
-            circle_settings=None,
-            line_settings=None,
-            scale=0.6,
-            expression_settings=None,
-            paths=paths
+        (metabolic_network, nodes, edges, highlighted_edges, arrows_to_grow, full_object) = (
+            Utils.create_metabolic_network(
+                nodes_dict=nodes_dict,
+                edges_dict=edges_dict,
+                circle_settings=None,
+                line_settings=None,
+                scale=0.6,
+                expression_settings=None,
+                paths=paths,
+            )
         )
         full_object.next_to(reaction_table, RIGHT * 0.25)
-        self.play(FadeIn(metabolic_network),
-                  run_time=1 * self.speed)
-        self.play(
-            GrowArrow(arrows_to_grow[0]),
-            run_time=1 * self.speed
-        )
-        self.play(
-            GrowArrow(arrows_to_grow[1]),
-            run_time=1 * self.speed
-        )
+        self.play(FadeIn(metabolic_network), run_time=1 * self.speed)
+        self.play(GrowArrow(arrows_to_grow[0]), run_time=1 * self.speed)
+        self.play(GrowArrow(arrows_to_grow[1]), run_time=1 * self.speed)
         text_to_indicate = []
         text_to_find = ["MAR04373", "MAR04139", "MAR04145", "30.9", "592.0", "93.0"]
         text_to_indicate = Utils.get_text_to_indicate(
             text_to_find=text_to_find,
             reaction_table=reaction_table,
-            text_to_indicate=text_to_indicate
+            text_to_indicate=text_to_indicate,
         )
         self.play(
             *[Indicate(line) for line in highlighted_edges[0]],
             *[Indicate(text) for text in text_to_indicate],
-            run_time=2 * self.speed
+            run_time=2 * self.speed,
         )
         text_to_indicate = []
         text_to_find = ["MAR04379", "MAR04363", "9.5", "1.2"]
         text_to_indicate = Utils.get_text_to_indicate(
             text_to_find=text_to_find,
             reaction_table=reaction_table,
-            text_to_indicate=text_to_indicate
+            text_to_indicate=text_to_indicate,
         )
         self.play(
             *[Indicate(line) for line in highlighted_edges[1]],
             *[Indicate(text) for text in text_to_indicate],
-            run_time=2 * self.speed
+            run_time=2 * self.speed,
         )
-        full_subscene = VGroup(vgroup2,
-                               reaction_table,
-                               full_object)
+        full_subscene = VGroup(vgroup2, reaction_table, full_object)
         box = SurroundingRectangle(full_subscene, color=BLUE)
-        self.play(Write(box),
-                  run_time=1 * self.speed)
+        self.play(Write(box), run_time=1 * self.speed)
         self.vom_dict["reaction_table"] = reaction_table
         self.vom_dict["metabolic_network"] = metabolic_network
         self.vom_dict["full_object"] = full_object
@@ -604,11 +583,7 @@ class Main(InteractiveScene):
         height_new_box = height_box - height_vgroup - 1.2
         self.vom_dict["height_new_box"] = height_new_box
         sample_clustering_text = Text(
-            "Sample Clustering\n"
-            "(e.g. t-SNE)",
-            font = self.main_font,
-            font_size=20,
-            opacity=0.8
+            "Sample Clustering\n" "(e.g. t-SNE)", font_size=20, opacity=0.8
         ).scale(1)
         sample_clustering_text.next_to(vgroup, DOWN, aligned_edge=LEFT)
         num_points = 20
@@ -616,57 +591,69 @@ class Main(InteractiveScene):
         self.vom_dict["cluster_rect"] = rect
         rect.next_to(sample_clustering_text, DOWN, aligned_edge=LEFT)
         sample_clustering_text.next_to(rect, UP, aligned_edge=ORIGIN)
-        rect_center = rect.get_center() - np.array([rect.get_width() / 4, rect.get_height() / 6, 0])
-        points_2d_normal_distribution = np.random.normal(loc=(rect_center[0], rect_center[1]), scale=0.2, size=(num_points, 2))
+        rect_center = rect.get_center() - np.array(
+            [rect.get_width() / 4, rect.get_height() / 6, 0]
+        )
+        points_2d_normal_distribution = np.random.normal(
+            loc=(rect_center[0], rect_center[1]), scale=0.2, size=(num_points, 2)
+        )
 
-        new_center = rect.get_center() + np.array([rect.get_width() / 9, -rect.get_height() / 10, 0])
-        new_points = np.random.normal(loc=(new_center[0], new_center[1]), scale=0.2, size=(num_points, 2))
-        self.play(ShowCreation(rect),
-                  FadeIn(sample_clustering_text),
-                  run_time=1 * self.speed)
+        new_center = rect.get_center() + np.array(
+            [rect.get_width() / 9, -rect.get_height() / 10, 0]
+        )
+        new_points = np.random.normal(
+            loc=(new_center[0], new_center[1]), scale=0.2, size=(num_points, 2)
+        )
+        self.play(ShowCreation(rect), FadeIn(sample_clustering_text), run_time=1 * self.speed)
         self.wait(0.5 * self.speed)
-        dots = [Dot((point[0], point[1], 0), radius=0.05,
-                    fill_color=PURPLE) for point in points_2d_normal_distribution]
+        dots = [
+            Dot((point[0], point[1], 0), radius=0.05, fill_color=PURPLE)
+            for point in points_2d_normal_distribution
+        ]
 
         legend_dot_1 = Dot(radius=0.05, fill_color=PURPLE)
         legend_dot_2 = Dot(radius=0.05, fill_color=ORANGE)
-        legend_text_1 = Text("Cluster 1", font = self.main_font,
-                             color=PURPLE, font_size=18).scale(1)
-        legend_text_2 = Text("Cluster 2", font = self.main_font,
-                             color=ORANGE, font_size=18).scale(1)
+        legend_text_1 = Text("Cluster 1", color=PURPLE, font_size=18).scale(1)
+        legend_text_2 = Text("Cluster 2", color=ORANGE, font_size=18).scale(1)
         legend_1 = VGroup(legend_dot_1, legend_text_1).arrange(RIGHT, buff=0.09)
         legend_2 = VGroup(legend_dot_2, legend_text_2).arrange(RIGHT, buff=0.09)
         legend = VGroup(legend_1, legend_2).arrange(DOWN)
-        legend.next_to(rect.get_right(), LEFT, aligned_edge=RIGHT).shift(UP * 0.5).shift(RIGHT * 0.15)
-        self.play(FadeIn(dots[0]),
-                  run_time=0.1 * self.speed)
-        self.play(Write(legend),
-                  run_time=0.1 * self.speed)
+        legend.next_to(rect.get_right(), LEFT, aligned_edge=RIGHT).shift(UP * 0.5).shift(
+            RIGHT * 0.15
+        )
+        self.play(FadeIn(dots[0]), run_time=0.1 * self.speed)
+        self.play(Write(legend), run_time=0.1 * self.speed)
         [self.play(FadeIn(dot), run_time=(0.1) * self.speed) for dot in dots[1:]]
         self.wait(0.5 * self.speed)
-        dots_new = [Dot((point[0], point[1], 0), radius=0.05,
-                        color=ORANGE, fill_color=ORANGE) for
-                    point in new_points]
+        dots_new = [
+            Dot((point[0], point[1], 0), radius=0.05, color=ORANGE, fill_color=ORANGE)
+            for point in new_points
+        ]
         [self.play(FadeIn(dot), run_time=(0.2) * self.speed) for dot in dots_new]
         clustering_graph = VGroup(legend, rect, sample_clustering_text, *dots, *dots_new)
         self.vom_dict["clustering_graph"] = clustering_graph
 
-    def create_network_graph_subscene(self):
+    general_speed_multiplier = 1
+    speed = 1 / general_speed_multiplier
+
+    def construct(self):
+        ### start
+        self.vom_dict = {}
+        self.intro()
+        self.does_gene_expression_predict_metabolic_activity()
+
         specific_question_text_2 = Text(
             "Can we cluster using metabolic predictions \n"
             "better than using just gene expression?",
-            font = self.main_font,
-            opacity=0.8
+            opacity=0.8,
         ).scale(0.5)
-        question_mark = Text("?", font = self.main_font).scale(1.5)
+        question_mark = Text("?").scale(1.5)
         group = VGroup(specific_question_text_2, question_mark).arrange(RIGHT)
         box = SurroundingRectangle(group, color=BLUE)
         vgroup = VGroup(group, box)
-        vgroup.next_to(self.vom_dict["vgroup2"], RIGHT * 4)
+        vgroup.next_to(self.vom_dict["vgroup2"], RIGHT * 2)
         self.vom_dict["prediction_question"] = vgroup
-        self.play(Write(group),
-                  Write(box, run_time=1 * self.speed),
-                  run_time=2 * self.speed)
+        self.play(Write(group), Write(box, run_time=1 * self.speed), run_time=2 * self.speed)
         self.wait(0.5 * self.speed)
 
         vgroup_3 = self.vom_dict["prediction_question"]
@@ -677,20 +664,18 @@ class Main(InteractiveScene):
 
         ####
         chararacteristics_text = Text(
-            "Do these clusters share\n"
-            "metabolic characteristics?",
-            font = self.main_font,
+            "Do these clusters share\n" "metabolic characteristics?",
             opacity=0.8,
-            font_size=20
+            font_size=20,
         ).scale(1)
         chararacteristics_text.next_to(vgroup, DOWN, aligned_edge=RIGHT)
         char_rect = Rectangle(width=vgroup.get_width() / 2, height=height_new_box, color=BLUE)
         char_rect.next_to(chararacteristics_text, DOWN, aligned_edge=LEFT)
-        chararacteristics_text.next_to(char_rect, UP, aligned_edge=ORIGIN).shift(LEFT * 0.2)
+        chararacteristics_text.next_to(char_rect, UP, aligned_edge=ORIGIN)
         char_rect.next_to(self.vom_dict["cluster_rect"], RIGHT, aligned_edge=UP, buff=0.1)
-        self.play(ShowCreation(char_rect),
-                  FadeIn(chararacteristics_text),
-                  run_time=1 * self.speed)
+        self.play(
+            ShowCreation(char_rect), FadeIn(chararacteristics_text), run_time=1 * self.speed
+        )
 
         ### more complicated toy network with different opacity or colours for things being chosen more or less (linetrace
         ### network_on_grid
@@ -768,15 +753,12 @@ class Main(InteractiveScene):
             "nodes": "data/nodes_dict.json",
             "node_paths": "data/node_paths.json",
             "random_paths_J1": "data/random_paths_J1.json",
-            "random_paths_E4": "data/random_paths_E4.json"
+            "random_paths_E4": "data/random_paths_E4.json",
         }
         if any([not os.path.exists(file) for file in json_file_name.values()]):
-            (new_nodes_dict,
-             new_edges_dict,
-             node_paths,
-             random_paths_J1,
-             random_paths_E4
-             ) = Utils.create_connected_network(nodes_dict, "J1", "E4")
+            (new_nodes_dict, new_edges_dict, node_paths, random_paths_J1, random_paths_E4) = (
+                Utils.create_connected_network(nodes_dict, "J1", "E4")
+            )
             with open(json_file_name["edges"], "w") as f:
                 json.dump(new_edges_dict, f)
             with open(json_file_name["nodes"], "w") as f:
@@ -800,9 +782,11 @@ class Main(InteractiveScene):
                 random_paths_E4 = json.load(f)
 
         sample_N = 200
-        initial_runtime = 0.25
-        last_runtime = 0.01
-        exponential_runtimes = np.exp(np.linspace(np.log(initial_runtime), np.log(last_runtime), sample_N))
+        initial_runtime = 0.1
+        last_runtime = 0.001
+        exponential_runtimes = np.exp(
+            np.linspace(np.log(initial_runtime), np.log(last_runtime), sample_N)
+        )
         circle_settings = {
             "radius": 0.11,
             "color": WHITE,
@@ -815,37 +799,33 @@ class Main(InteractiveScene):
             "color": WHITE,
             "fill_opacity": 0.8,
         }
-        (
-            metabolic_network,
-            nodes,
-            edges,
-            highlighted_edges,
-            arrows_to_grow,
-            full_object
-        ) = Utils.create_metabolic_network(
-            nodes_dict=new_nodes_dict,
-            edges_dict=new_edges_dict,
-            circle_settings=circle_settings,
-            line_settings=line_settings,
-            scale=0.16,
-            expression_settings=None,
-            paths=None,
-            node_paths=node_paths,
-            font = "Arial"
+        (metabolic_network, nodes, edges, highlighted_edges, arrows_to_grow, full_object) = (
+            Utils.create_metabolic_network(
+                nodes_dict=new_nodes_dict,
+                edges_dict=new_edges_dict,
+                circle_settings=circle_settings,
+                line_settings=line_settings,
+                scale=0.18,
+                expression_settings=None,
+                paths=None,
+                node_paths=node_paths,
+            )
         )
         full_object.next_to(char_rect.get_left(), RIGHT, aligned_edge=LEFT).shift(LEFT * 0.2)
         full_object.move_to(char_rect.get_center())
 
-        self.play(FadeIn(metabolic_network),
-                  *[FadeIn(arrows) for arrows in arrows_to_grow],
-                  run_time=2 * self.speed)
+        self.play(
+            FadeIn(metabolic_network),
+            *[FadeIn(arrows) for arrows in arrows_to_grow],
+            run_time=2 * self.speed,
+        )
 
         purple_ = np.array([0.5, 0, 0.5])
         orange_ = np.array([1, 0.5, 0])
         alpha = 0.05
 
         def custom_line_indicate_animation_only_width(obj, color, scale_factor=2):
-            assert (isinstance(obj, Line))
+            assert isinstance(obj, Line)
             current_color = obj.get_color()
             current_width = obj.get_stroke_width()
             new_width = current_width * scale_factor
@@ -853,20 +833,6 @@ class Main(InteractiveScene):
             func = Succession(
                 ApplyMethod(obj.set_stroke, color, new_width),
                 ApplyMethod(obj.set_stroke, current_color, old_width),
-            )
-            return func
-
-        def custom_node_indicate_animation(obj, color, scale_factor= 2):
-            assert (isinstance(obj, Dot))
-            current_color = obj.get_color()
-            current_radius = obj.get_radius()
-            new_radius = current_radius * scale_factor
-            old_radius = current_radius * 1
-            func = Succession(
-                ApplyMethod(obj.set_color, color),
-                ApplyMethod(obj.set_radius, new_radius),
-                ApplyMethod(obj.set_color, current_color),
-                ApplyMethod(obj.set_radius, old_radius),
             )
             return func
 
@@ -881,39 +847,41 @@ class Main(InteractiveScene):
                 color = PURPLE
                 for obj in highlighted_edges[random_path_idx]:
                     dict_with_highlights_and_color_gradient[obj][0] += 1 / sample_N
-                    new_color = (color_to_rgb(obj.get_color()) + alpha * (purple_ - color_to_rgb(obj.get_color())))
+                    new_color = color_to_rgb(obj.get_color()) + alpha * (
+                        purple_ - color_to_rgb(obj.get_color())
+                    )
                     obj.set_color(rgb_to_color(new_color))
                 for arrow in arrows_to_grow:
-                    new_color = (color_to_rgb(arrow.get_color()) + alpha * (purple_ - color_to_rgb(arrow.get_color())))
+                    new_color = color_to_rgb(arrow.get_color()) + alpha * (
+                        purple_ - color_to_rgb(arrow.get_color())
+                    )
                     arrow.set_color(rgb_to_color(new_color))
             elif cluster_number == 1:
-                random_path_idx = np.random.randint(len(random_paths_E4)) + len(random_paths_J1)
+                random_path_idx = np.random.randint(len(random_paths_E4)) + len(
+                    random_paths_J1
+                )
                 color = ORANGE
                 for obj in highlighted_edges[random_path_idx]:
                     dict_with_highlights_and_color_gradient[obj][1] += 1 / sample_N
-                    new_color = (color_to_rgb(obj.get_color()) + alpha * (orange_ - color_to_rgb(obj.get_color())))
+                    new_color = color_to_rgb(obj.get_color()) + alpha * (
+                        orange_ - color_to_rgb(obj.get_color())
+                    )
                     obj.set_color(rgb_to_color(new_color))
                 for arrow in arrows_to_grow:
-                    new_color = (color_to_rgb(arrow.get_color()) + alpha * (purple_ - color_to_rgb(arrow.get_color())))
+                    new_color = color_to_rgb(arrow.get_color()) + alpha * (
+                        purple_ - color_to_rgb(arrow.get_color())
+                    )
                     arrow.set_color(rgb_to_color(new_color))
             run_time = exponential_runtimes[idx]
-            nodes_in_highlighted_edges = []
-            lines_in_highlighted_edges = []
-            for obj in highlighted_edges[random_path_idx]:
-                if isinstance(obj, Dot):
-                    nodes_in_highlighted_edges.append(obj)
-                elif isinstance(obj, Line):
-                    lines_in_highlighted_edges.append(obj)
-
             self.play(
-                *[custom_node_indicate_animation(
-                    obj, color=color, scale_factor=2
-                ) for obj in nodes_in_highlighted_edges],
-                *[custom_line_indicate_animation_only_width(
-                    obj, color=color, scale_factor=2)
-                    for obj in lines_in_highlighted_edges],
-                run_time=run_time * self.speed
+                *[
+                    Indicate(obj, color=color, scale_factor=1.2)
+                    for obj in highlighted_edges[random_path_idx]
+                ],
+                run_time=run_time * self.speed,
             )
+            # else:
+            #     continue
 
         nodes_to_indicate_and_fade_out = []
         lines_to_indicate_and_fade_out = []
@@ -921,12 +889,20 @@ class Main(InteractiveScene):
             obj_color = color_to_rgb(obj.get_color())
             blue_plusminus = 0.20
             blue = color_to_rgb(BLUE)
-            blue_lower = [blue[0] - blue_plusminus, blue[1] - blue_plusminus, blue[2] - blue_plusminus]
-            blue_upper = [blue[0] + blue_plusminus, blue[1] + blue_plusminus, blue[2] + blue_plusminus]
+            blue_lower = [
+                blue[0] - blue_plusminus,
+                blue[1] - blue_plusminus,
+                blue[2] - blue_plusminus,
+            ]
+            blue_upper = [
+                blue[0] + blue_plusminus,
+                blue[1] + blue_plusminus,
+                blue[2] + blue_plusminus,
+            ]
             if (
-                    blue_lower[0] <= obj_color[0] <= blue_upper[0] and
-                    blue_lower[1] <= obj_color[1] <= blue_upper[1] and
-                    blue_lower[2] <= obj_color[2] <= blue_upper[2]
+                blue_lower[0] <= obj_color[0] <= blue_upper[0]
+                and blue_lower[1] <= obj_color[1] <= blue_upper[1]
+                and blue_lower[2] <= obj_color[2] <= blue_upper[2]
             ):
                 nodes_to_indicate_and_fade_out.append(obj)
         for obj in edges.values():
@@ -935,26 +911,28 @@ class Main(InteractiveScene):
                 if isinstance(obj, Line):
                     lines_to_indicate_and_fade_out.append(obj)
 
+        # self.play(
+        #     *[Indicate(obj, color=BLUE, scale_factor=2) for obj in nodes_to_indicate_and_fade_out],
+        #     run_time=2 * self.speed,
+        # )
         self.play(
-            *[custom_line_indicate_animation_only_width(
-                obj, color=WHITE, scale_factor=2) for obj in lines_to_indicate_and_fade_out],
-            run_time=1.5 * self.speed,
+            *[
+                custom_line_indicate_animation_only_width(obj, color=WHITE, scale_factor=1.5)
+                for obj in lines_to_indicate_and_fade_out
+            ],
+            run_time=2 * self.speed,
         )
         self.play(
             *[FadeOut(obj) for obj in nodes_to_indicate_and_fade_out],
             *[FadeOut(obj) for obj in lines_to_indicate_and_fade_out],
-            run_time=1 * self.speed
+            run_time=1 * self.speed,
         )
-        full_subscene = VGroup(vgroup_3,
-                               char_rect,
-                               chararacteristics_text,
-                               full_object)
+        full_subscene = VGroup(vgroup_3, char_rect, chararacteristics_text, full_object)
         box = SurroundingRectangle(full_subscene, color=BLUE)
         box_1 = self.vom_dict["box_question_1"]
         box.stretch_to_fit_height(box_1.get_height())
-        box.next_to(box_1, RIGHT, aligned_edge=UP).shift(RIGHT*0.26)
-        self.play(Write(box),
-                  run_time=1 * self.speed)
+        box.next_to(box_1, RIGHT, aligned_edge=UP)
+        self.play(Write(box), run_time=1 * self.speed)
 
         self.vom_dict["box_question_2"] = box
         self.vom_dict["characteristics_subscene"] = full_subscene
@@ -963,26 +941,6 @@ class Main(InteractiveScene):
             if obj not in nodes_to_indicate_and_fade_out + lines_to_indicate_and_fade_out:
                 subscene_minus_faded_out.add(obj)
 
-        self.vom_dict["characteristics_subscene_minus_faded_out"] = subscene_minus_faded_out
-        self.vom_dict["char_rect"] = char_rect
-        self.vom_dict["chararacteristics_text"] = chararacteristics_text
-        self.vom_dict["box_1"] = box_1
-
-    general_speed_multiplier = 1
-    speed = 1 / general_speed_multiplier
-
-    def construct(self):
-        ### start
-        self.vom_dict = {}
-        self.intro()
-        self.does_gene_expression_predict_metabolic_activity()
-        self.create_network_graph_subscene()
-        box_1 = self.vom_dict["box_1"]
-        char_rect = self.vom_dict["char_rect"]
-        chararacteristics_text = self.vom_dict["chararacteristics_text"]
-        subscene_minus_faded_out = self.vom_dict["characteristics_subscene_minus_faded_out"]
-        box = self.vom_dict["box_question_2"]
-
         self.wait(1 * self.speed)
 
         box_1_copy = box_1.copy()
@@ -990,21 +948,16 @@ class Main(InteractiveScene):
         self.play(ShowPassingFlash(box_1_copy, time_width=0.5, run_time=2 * self.speed))
         self.wait(1 * self.speed)
         clustering_graph = self.vom_dict["clustering_graph"]
-        self.play(FadeOut(subscene_minus_faded_out),
-                  FadeOut(box),
-                  FadeOut(self.vom_dict["prediction_question"]),
-                  FadeOut(chararacteristics_text),
-                  FadeOut(char_rect),
-                  FadeOut(clustering_graph),
-                  run_time=1 * self.speed)
+        self.play(
+            FadeOut(subscene_minus_faded_out),
+            FadeOut(box),
+            FadeOut(self.vom_dict["prediction_question"]),
+            FadeOut(chararacteristics_text),
+            FadeOut(char_rect),
+            FadeOut(clustering_graph),
+            run_time=1 * self.speed,
+        )
         self.wait(1 * self.speed)
-        box_111 = self.vom_dict["box_question_2"]
-        self.play(FadeIn(self.vom_dict["full_object"]),
-                  FadeIn(self.vom_dict["prediction_question"]),
-                  FadeIn(self.vom_dict["chararacteristics_text"]),
-                    FadeIn(self.vom_dict["char_rect"]),
-                    run_time=1 * self.speed)
-
 
         self.play(
             FadeOut(self.vom_dict["vgroup2"]),
@@ -1012,11 +965,10 @@ class Main(InteractiveScene):
             FadeOut(self.vom_dict["metabolic_network"]),
             FadeOut(self.vom_dict["full_object"]),
             FadeOut(self.vom_dict["box_question_1"]),
-            run_time=1 * self.speed
+            run_time=1 * self.speed,
         )
         # TODO change indication in network graph to be only width using custom function
         # TODO and make speed slightly different
-
 
         # specific_question_text_3 = Text(
         #     "Do these differences resemble underlying biology?"
@@ -1070,323 +1022,11 @@ class Main(InteractiveScene):
         #           run_time=2*self.speed)
         #
 
-class AlgorithmDevelopment(InteractiveScene):
-    general_speed_multiplier = 1
-    speed = 1 / general_speed_multiplier
-    main_font = "Arial"
-    scene_dict = {}
-    def construct(self):
-        prediction_text_box = Utilities.create_text("Predicting metabolic activity from gene expression (or other omics data)",
-                                                    1,
-                                                    font_size = 24,
-                                                    add_question_mark=False,
-                                                    font=self.main_font,
-                                                    with_box=False)
-        prediction_text_box.to_edge(UP)
-        self.play(Write(prediction_text_box),
-                  run_time=2*self.speed)
-        self.wait(1*self.speed)
-        bullet_point_1_text = Text("1. Linking omics expression to specific reactions",
-                                   font = self.main_font)
-        bullet_point_2_text = Text("2. Metabolic tasks",
-                                    font = self.main_font)
-        bullet_point_3_text = Text("3. Assessing task-specific expression",
-                                    font = self.main_font)
-        bullet_point_4_text = Text("4. Predicting specific reactions based on expression",
-                                    font = self.main_font)
-
-        bullet_points = VGroup(
-            bullet_point_1_text,
-            bullet_point_2_text,
-            bullet_point_3_text,
-            bullet_point_4_text
-        )
-        for bullet_point in bullet_points:
-            bullet_point.set_color(BLUE)
-            bullet_point.scale(0.5)
-        bullet_points.arrange(DOWN, aligned_edge=LEFT)
-        bullet_points.center().shift(LEFT*4).shift(UP)
-        self.play(Write(bullet_point_1_text),
-                  run_time=2*self.speed)
-
-        #####
-        blue_2_part_reaction_piece = VMobject()
-        blue_2_part_reaction_piece.set_points_as_corners(
-            [
-                [1, 1, 0],   # Starting point
-                [2, 2, 0],   # Top edge
-                [3, 2, 0],   # Curve/irregular edge
-                [3, 0, 0],  # Bottom edge
-                [0, 0, 0],   # Close the shape
-                [0, 1, 0],  # Close the shape
-            ]
-        )
-
-        reaction_arrows_object = VGroup()
-        font_size = 18
-        ADP_text = Text("ADP", font_size = font_size, font = self.main_font)
-        metabolite_1 = (
-                ADP_text
-        )
-        Pi_text = Text("Pi", font_size = font_size, font = self.main_font)
-        metabolite_2 = (
-                Pi_text
-        )
-        ATP_text = Text("ATP", font_size = font_size, font = self.main_font)
-        metabolite_3 = (
-                ATP_text
-        )
-        main_arrow = Arrow(ORIGIN+RIGHT, RIGHT*4, stroke_width=2)
-        extra_curved_arrow = CurvedArrow(
-            start_point=ORIGIN+DOWN-LEFT,
-            end_point=RIGHT*4,
-            angle=TAU/8,
-            stroke_width=6,
-
-        ).rotate(-40*DEGREES).flip(LEFT)
-        extra_curved_arrow.shift(main_arrow.get_end() - extra_curved_arrow.get_end())
-        extra_curved_arrow.shift(RIGHT*0.1)
-        # extra_curved_arrow.shift(RIGHT*0.25).scale(0.90).shift(UP*0.1)
-        reaction_arrows_object.add(main_arrow, extra_curved_arrow)
-        metabolite_1.next_to(main_arrow.get_start(), LEFT, buff=0.3)
-        metabolite_2.next_to(extra_curved_arrow.get_start(), DOWN, buff=0.3).shift(LEFT*0.1 + UP*0.1)
-        metabolite_3.next_to(main_arrow.get_end(), RIGHT, buff=0.3)
-        reaction_arrows_object.add(metabolite_1, metabolite_2, metabolite_3)
-        met_box_1 = SurroundingRectangle(metabolite_1, color=BLUE)
-        met_box_2 = SurroundingRectangle(metabolite_2, color=BLUE)
-        met_box_3 = SurroundingRectangle(metabolite_3, color=BLUE)
-        reaction_arrows_object.add(met_box_1, met_box_2, met_box_3).shift(RIGHT*2)
-        reaction_name = Text("ATP Synthesis", font_size=24, font=self.main_font)
-        reaction_name.next_to(reaction_arrows_object, direction = UP, aligned_edge = LEFT).shift(RIGHT).shift(DOWN* 0.2)
-
-        square_to_add = Square(side_length=1, color=BLUE, fill_color=ORANGE, fill_opacity=1)
-        square_to_add.next_to(reaction_arrows_object, UP, buff=0.5)
-        text_inside_square = Text("50.8", font_size=28, font=self.main_font)
-        text_inside_square.move_to(square_to_add.get_center())
-        text_above_reaction = Text("Single Gene", font_size=24, font=self.main_font)
-        text_above_reaction.move_to(square_to_add.get_center() + UP * 2)
-        self.play(DrawBorderThenFill(square_to_add),
-                  ShowCreation(reaction_arrows_object),
-                  Write(text_inside_square),
-                  Write(text_above_reaction),
-                  Write(reaction_name),
-                  run_time=2*self.speed)
-
-        reaction_name_2 = Text("ATP Synthesis 50.8", font_size=24, font=self.main_font)
-        reaction_name_2.next_to(reaction_arrows_object, direction = UP, aligned_edge = LEFT).shift(RIGHT).shift(DOWN* 0.2)
-        self.remove(reaction_name)
-        self.add(reaction_name_2)
-        self.wait(2*self.speed)
-
-        self.play(
-            FadeOut(square_to_add),
-            FadeOut(text_inside_square),
-            FadeOut(text_above_reaction),
-            FadeIn(reaction_name),
-            FadeOut(reaction_name_2),
-            run_time=1*self.speed
-        )
-
-        second_text_above_reaction = Text("Multiple Genes with OR rules", font_size=24,
-                                          font=self.main_font)
-        second_text_above_reaction.move_to(square_to_add.get_center() + UP * 2)
-
-        blue_2_part_reaction_piece.set_fill(BLUE, opacity=1)
-        blue_2_part_reaction_piece.set_stroke(WHITE, width=2)
-        blue_2_part_reaction_piece.scale(1)
-        blue_2_part_reaction_value = Text("180.2", font_size=28).scale(2)
-        blue_2_part_reaction_value.move_to(blue_2_part_reaction_piece.get_center() + DOWN*0.4)
-        blue_2_part_group = VGroup(blue_2_part_reaction_piece, blue_2_part_reaction_value)
-        blue_2_part_group.scale(0.5)
-        blue_2_part_group_initial = blue_2_part_group.copy()
-
-        red_2_part_reaction_piece = blue_2_part_reaction_piece.copy()
-        red_2_part_reaction_piece.set_fill(RED, opacity=1)
-        red_2_part_reaction_value = Text("20.4", font_size=28).scale(1)
-        red_2_part_reaction_value.move_to(red_2_part_reaction_piece.get_center() + DOWN*0.2)
-        red_2_part_reaction_value_initial_group = VGroup(
-            red_2_part_reaction_piece.copy(),
-        red_2_part_reaction_value.copy()
-        )
-        red_2_part_reaction_piece.flip(UP).flip(LEFT)
-        red_2_part_reaction_piece.shift(UP*0.5)
-        red_2_part_group = VGroup(red_2_part_reaction_piece,
-                                  # red_2_part_reaction_value
-                                  )
-
-        blue_2_part_group_initial.move_to(metabolite_1.get_center()).shift(UP*0.5).shift(LEFT*1.2)
-        red_2_part_reaction_value_initial_group.next_to(blue_2_part_group_initial, LEFT, buff=0.1)
-
-        self.play(Write(second_text_above_reaction),
-                  ShowCreation(blue_2_part_group_initial),
-                  ShowCreation(red_2_part_reaction_value_initial_group),
-                    run_time=2*self.speed)
-
-        self.play(
-            blue_2_part_group_initial.animate.move_to(
-                    metabolite_1.get_center()).shift(UP*1.4).shift(RIGHT*2.9),
-            red_2_part_reaction_value_initial_group.animate.move_to(
-                metabolite_1.get_center()).shift(UP*1.4).shift(RIGHT*0.6),
-            run_time=2*self.speed
-        )
-        max_text = Text("Max", font_size=24, font=self.main_font)
-        max_text.next_to(second_text_above_reaction, DOWN, buff=0.2)
-        self.play(Write(max_text),
-                    run_time=1*self.speed)
-        self.wait(1*self.speed)
-        reaction_name_3 = Text("ATP Synthesis 20.4", font_size=24, font=self.main_font)
-        reaction_name_3.next_to(reaction_arrows_object, direction = UP, aligned_edge = LEFT).shift(RIGHT).shift(DOWN* 0.2)
-        self.play(Indicate(red_2_part_reaction_value_initial_group),
-                  run_time=2*self.speed)
-        self.remove(reaction_name)
-        self.add(reaction_name_3)
-        self.remove(reaction_name_2)
-
-        self.wait(1*self.speed)
-        reaction_name_4 = Text("ATP Synthesis 180.2", font_size=24, font=self.main_font)
-        reaction_name_4.next_to(reaction_arrows_object, direction = UP, aligned_edge = LEFT).shift(RIGHT).shift(DOWN* 0.2)
-        self.play(Indicate(blue_2_part_group_initial),
-                    run_time=2*self.speed)
-        self.remove(reaction_name_3)
-        self.add(reaction_name_4)
-        self.wait(1*self.speed)
-        self.play(FadeOut(max_text),
-                  FadeOut(reaction_name_4),
-                  FadeIn(reaction_name),
-                  run_time=1*self.speed)
-        self.wait(1*self.speed)
-        SUM_text = Text("Sum", font_size=24, font=self.main_font)
-        SUM_text.next_to(second_text_above_reaction, DOWN, buff=0.2)
-        self.play(Write(SUM_text),
-                    run_time=1*self.speed)
-        reaction_name_5 = Text("ATP Synthesis 200.6", font_size=24, font=self.main_font)
-        reaction_name_5.next_to(reaction_arrows_object, direction = UP, aligned_edge = LEFT).shift(RIGHT).shift(DOWN* 0.2)
-        self.play(Indicate(blue_2_part_group_initial),
-                  Indicate(red_2_part_reaction_value_initial_group),
-                    run_time=2*self.speed)
-        self.remove(reaction_name)
-        self.remove(reaction_name_4)
-        self.add(reaction_name_5)
-        self.wait(1*self.speed)
-
-        self.play(FadeOut(SUM_text),
-                  FadeOut(reaction_name_5),
-                  run_time=1*self.speed)
-        multiple_genes_AND_text = Text("Multiple Genes with AND rules", font_size=24, font=self.main_font)
-        multiple_genes_AND_text.move_to(second_text_above_reaction.get_center())
-        self.play(
-            FadeOut(second_text_above_reaction),
-            Write(multiple_genes_AND_text),
-            run_time=1*self.speed
-        )
-
-        red_2_part_reaction_value.move_to(red_2_part_reaction_piece.get_center() + UP * 0.2)
-        red_2_part_group.add(red_2_part_reaction_value)
-        full_group_reaction = VGroup(blue_2_part_group, red_2_part_group)
-        full_group_reaction.align_to(blue_2_part_group_initial,DOWN)
-        full_group_reaction.shift(RIGHT * 3)
-        full_group_reaction_initial = VGroup(blue_2_part_group_initial, red_2_part_reaction_value_initial_group)
-        self.play(
-            ReplacementTransform(full_group_reaction_initial, full_group_reaction),
-            run_time=2*self.speed
-        )
-        self.wait(1*self.speed)
-        MIN_text = Text("Min", font_size=24, font=self.main_font)
-        MIN_text.next_to(multiple_genes_AND_text, DOWN, buff=0.2)
-        self.play(Write(MIN_text),
-                    run_time=1*self.speed)
-        self.wait(1*self.speed)
-        self.play(Indicate(full_group_reaction),
-                  run_time=2*self.speed)
-        self.wait(1*self.speed)
-        reaction_name_6 = Text("ATP Synthesis 20.4", font_size=24, font=self.main_font)
-        reaction_name_6.next_to(reaction_arrows_object, direction = UP, aligned_edge = LEFT).shift(RIGHT).shift(DOWN* 0.2)
-        self.remove(reaction_name_5)
-        self.add(reaction_name_6)
-        self.wait(1*self.speed)
-
-
-        self.play(Write(bullet_point_2_text),
-                  run_time=2*self.speed)
-        self.wait(1*self.speed)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        # import manimpango
-        # list_of_fonts = manimpango.list_fonts()
-        # text = "Hey there this predicting azqord is some text for us to  \n see how it looks ! ? $ _ (  )\n"
-        # for idx in range(len(list_of_fonts)):
-        #     font1 = list_of_fonts[idx]
-        #     font2 = list_of_fonts[idx+1]
-        #     font3 = list_of_fonts[idx+2]
-        #     text_obj = Text(text + font1, font_size=34, font=font1)
-        #     text_obj2 = Text(text + font2, font_size=34, font=font2)
-        #     text_obj3 = Text(text + font3, font_size=34, font=font3)
-        #     full_group = VGroup(text_obj, text_obj2, text_obj3).arrange(DOWN)
-        #     self.play(FadeIn(full_group),
-        #               run_time=1*self.speed)
-        #     self.wait(1*self.speed)
-        #     self.remove(full_group)
-
-
-
-
-
-        # add box with GPR animation here
-        ## box with on middle right a reaction with an object
-        ### object should look like 2 interlocking
-
-        # self.wait(5*self.speed)
-        # self.play(Write(bullet_point_2_text),
-        #           run_time=2*self.speed)
-        # self.wait(5*self.speed)
-        # self.play(Write(bullet_point_3_text),
-        #           run_time=2*self.speed)
-        # self.wait(5*self.speed)
-        # self.play(Write(bullet_point_4_text),
-        #           run_time=2*self.speed)
-        #
-        #
-
-
 
 if __name__ == "__main__":
     # subprocess.run(["manimgl", "SRC/main.py", "Main", "-e",
     #                 # "--full_screen"
     #                 ])
-    # subprocess.run([
-    #     "manimgl", "SRC/main.py", "AlgorithmDevelopment",
-    #     "-e",
-    #     ])
-
-    # subprocess.run([
-    #     "manimgl", "SRC/main.py", "Main",
-    #     "-w",
-    #     "--uhd"
-    # ])
-    subprocess.run([
-        "manimgl", "SRC/main.py", "AlgorithmDevelopment",
-        "-w",
-        "--uhd"
-    ])
-
-
+    subprocess.run(["manimgl", "SRC/main.py", "Main", "-w", "--uhd"])
 
     # checkpoint_paste()

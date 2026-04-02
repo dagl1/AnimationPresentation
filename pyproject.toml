@@ -1,0 +1,105 @@
+[project]
+name = "pagoza"
+dynamic = ["version"]
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.14"
+dependencies = [
+    "black>=25.12.0",
+    "commitizen>=4.11.0",
+    "dash>=4.1.0",
+    "dash-bootstrap-components>=2.0.4",
+    "dash-mantine-components>=2.6.0",
+    "gunicorn>=25.1.0",
+    "isort>=7.0.0",
+    "mypy>=1.19.1",
+    "myst-parser>=5.0.0",
+    "nbsphinx>=0.9.8",
+    "numpy>=2.4.3",
+    "pre-commit>=4.5.1",
+    "pytest>=9.0.2",
+    "python-semantic-release>=10.5.3",
+    "ruff>=0.14.10",
+    "setuptools-scm>=9.2.2",
+    "sphinx>=9.1.0",
+    "sphinx-copybutton>=0.5.2",
+    "sphinx-rtd-theme>=3.1.0",
+    "ty>=0.0.8",
+]
+
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["PAGOZA*"]
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+include-package-data = true
+zip-safe = false
+
+[tool.setuptools.package-data]
+PAGOZA = ["py.typed"]
+
+[tool.setuptools_scm]
+version_scheme = "post-release"
+local_scheme = "no-local-version"
+
+[tool.ruff]
+line-length = 94
+exclude = ["build", "dist", ".venv"]
+fix = true
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "C90", "B", "I"]
+ignore = [
+    "W291",
+    "W293",
+    "F403",  # 'from module import *' used; unable to detect undefined names
+    "F401",  # module imported but unused
+]
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401"]  # allow unused imports in __init__.py files
+"tests/*" = ["S101"]  # allow use of assert statements in tests
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
+
+[tool.mypy]
+exclude = ["docs/source/conf.py"]
+mypy_path = ["src"]
+explicit_package_bases = true
+
+[tool.isort]
+profile = "black"
+line_length = 94
+
+[tool.semantic_release]
+version_source = "tag"
+branch = "main"
+prerelease_token = "main"
+upload_to_pypi = false  # set to true if you want PyPI deployment later
+changelog_file = "CHANGELOG.md"
+
+[tool.sphinx]
+source-dir = "docs/source"
+build-dir = "docs/_build"
+
+[tool.commitizen]
+name = "cz_conventional_commits"
+tag_format = "v$version"
+version = "0.1.0"
+version_scheme = "semver2"
+version_provider = "uv"
+update_changelog_on_bump = true
+major_version_zero = true
+[dependency-groups]
+dev = [
+    "pre-commit>=4.3.0",
+]
