@@ -49,7 +49,7 @@ INTERACTIVE_REVIEW = os.getenv("MANIM_INTERACTIVE_REVIEW", "1") == "1"
 
 # Global playback tuning for this scene.
 # MANIM_SPEED > 1.0 slows down all timed plays, < 1.0 speeds up.
-_SCENE_SPEED = min(0.1, float(os.getenv("MANIM_SPEED", "1.0")))
+_SCENE_SPEED = min(1, float(os.getenv("MANIM_SPEED", "1.0")))
 _STEP_END = int(os.getenv("MANIM_STEP_END", "8"))
 _BREAKPOINTS = {
     token.strip() for token in os.getenv("MANIM_BREAKPOINTS", "").split(",") if token.strip()
@@ -161,7 +161,7 @@ class Scene01Storyboard(Scene):
             starting_parenthesis, high_text, slash_text, low_text, thresholds_text
         ).arrange(RIGHT, buff=0.1)
         imat_vgroup = VGroup(imat_text, threshold_group).arrange(DOWN, buff=0.15)
-        imat_vgroup.next_to(model, RIGHT, buff=0.4).shift(UP * 0.2).shift(RIGHT * 0.2)
+        imat_vgroup.next_to(model, RIGHT, buff=0.4).shift(UP * 0.2).shift(RIGHT * 0.4)
         imat_ref = Text("(Shlomi et al. 2008)", font_size=20)
         imat_ref.to_edge(DOWN, buff=0.7).to_edge(LEFT, buff=0.8)
 
@@ -195,11 +195,6 @@ class Scene01Storyboard(Scene):
             model.regulation_arrows.animate.set_opacity(0.0),
             run_time=self._rt(0.3),
         )
-        self._maybe_breakpoint(3)
-        if self._stop_after_if_needed(3):
-            _hold_for_review(self)
-            return
-
         # Step 4: eFlux overlays
         eflux_text = Text("eFlux", font_size=34)
         prefix = Text("Relative expression (", font_size=20)
@@ -216,27 +211,26 @@ class Scene01Storyboard(Scene):
 
         self.play(FadeIn(eflux_group), FadeIn(eflux_ref), run_time=self._rt(0.6))
 
+        all_reactions = sorted(model.reaction_by_id.keys())
+        reaction_values = {
+            rid: (-2.0 + (4.0 * idx / max(1, len(all_reactions) - 1)))
+            for idx, rid in enumerate(all_reactions)
+        }
         self.play(
-            model.show_regulation("T7_O2", "up"),
-            model.show_regulation("T6_O3", "up"),
-            model.show_regulation("G2_G3", "down"),
+            model.color_reactions_by_value(reaction_values, value_min=-2.0, value_max=2.0),
             run_time=self._rt(2.7),
         )
-        self.interactive_embed()
-        self.play(model.regulation_arrows.animate.set_opacity(0.0), run_time=self._rt(1.5))
+
         # Step 5: move model + labels to the right side and remove refs
-        right_focus = VGroup(model, imat_text, eflux_text)
         self.play(
-            right_focus.animate.to_edge(RIGHT, buff=0.5),
+            model.animate.to_edge(RIGHT, buff=0.5).scale(0.9).shift(DOWN * 0.2),
+            FadeOut(imat_vgroup),
+            FadeOut(eflux_group),
             FadeOut(imat_ref),
             FadeOut(eflux_ref),
             FadeOut(heart),
             run_time=self._rt(0.9),
         )
-        self._maybe_breakpoint(5)
-        if self._stop_after_if_needed(5):
-            _hold_for_review(self)
-            return
 
         # Step 6: two toy networks with expression and flux contrast
         top_net = ToyNetwork(
@@ -254,7 +248,7 @@ class Scene01Storyboard(Scene):
 
         top_net.scale(0.9)
         bottom_net.scale(0.9)
-        top_net.to_edge(LEFT, buff=0.8).to_edge(UP, buff=1.2)
+        top_net.to_edge(LEFT, buff=0.8).to_edge(UP, buff=1.2).shift(DOWN * 0.3)
         bottom_net.next_to(top_net, DOWN, buff=1.0).align_to(top_net, LEFT)
 
         self.play(FadeIn(top_net), run_time=self._rt(0.6))

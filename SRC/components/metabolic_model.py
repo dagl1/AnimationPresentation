@@ -198,25 +198,24 @@ class MetabolicModel(BaseComponent):
                 self.node_by_id["T1"],
                 self.node_by_id["T2"],
                 self.node_by_id["T3"],
+                self.node_by_id["T4"],
                 self.node_by_id["T8"],
                 self.reaction_by_id["T1_T2"],
                 self.reaction_by_id["T2_T3"],
                 self.reaction_by_id["T3_T4"],
+                self.reaction_by_id["T4_T5"],
                 self.reaction_by_id["T7_T8"],
                 self.reaction_by_id["T8_T1"],
-                reaction_ids=["T1_T2", "T2_T3", "T7_T8", "T8_T1"],
+                reaction_ids=["T1_T2", "T2_T3", "T3_T4", "T4_T5", "T7_T8", "T8_T1"],
             ),
             "lower_tca": self._build_pathway_group(
-                self.node_by_id["T4"],
                 self.node_by_id["T5"],
                 self.node_by_id["T6"],
                 self.node_by_id["T7"],
-                self.reaction_by_id["T3_T4"],
-                self.reaction_by_id["T4_T5"],
                 self.reaction_by_id["T5_T6"],
                 self.reaction_by_id["T6_T7"],
                 self.reaction_by_id["T7_T8"],
-                reaction_ids=["T3_T4", "T4_T5", "T5_T6", "T6_T7", "T7_T8"],
+                reaction_ids=["T5_T6", "T6_T7", "T7_T8"],
             ),
         }
 
@@ -243,21 +242,51 @@ class MetabolicModel(BaseComponent):
 
         for reaction_id in high or []:
             key = self._reaction_key(reaction_id)
-            arrow = self.reaction_by_id.get(key)
-            if arrow is None:
-                continue
-            animations.append(arrow.animate.set_color(UP_ARROW_COLOR))
             animations.append(self.show_regulation(key, direction="up"))
 
         for reaction_id in low or []:
             key = self._reaction_key(reaction_id)
-            arrow = self.reaction_by_id.get(key)
-            if arrow is None:
-                continue
-            animations.append(arrow.animate.set_color(DOWN_ARROW_COLOR))
             animations.append(self.show_regulation(key, direction="down"))
 
         return AnimationGroup(*animations, lag_ratio=0.0)
+
+    def color_reactions_by_value(
+        self,
+        reaction_values: dict[str, float],
+        value_min: float = -2.0,
+        value_max: float = 2.0,
+    ) -> Animation:
+        """Color reaction arrows with a continuous LOW->HIGH gradient."""
+        if not self.reaction_by_id:
+            return AnimationGroup()
+
+        lo = float(value_min)
+        hi = float(value_max)
+        span = hi - lo if hi != lo else 1.0
+
+        arrows = list(self.reaction_by_id.values())
+        animation_group = VGroup(*arrows)
+        start_colors = {id(arrow): arrow.get_color() for arrow in arrows}
+        target_colors = {}
+        for reaction_id, arrow in self.reaction_by_id.items():
+            value = float(reaction_values.get(reaction_id, 0.0))
+            t = max(0.0, min(1.0, (value - lo) / span))
+            target_colors[id(arrow)] = interpolate_color(DOWN_ARROW_COLOR, UP_ARROW_COLOR, t)
+
+        def update_reaction_colors(updated_group: VGroup, alpha: float) -> VGroup:
+            for arrow in arrows:
+                arrow_id = id(arrow)
+                current_color = ManimColor(
+                    interpolate_color(start_colors[arrow_id], target_colors[arrow_id], alpha)
+                )
+                arrow.set_color(current_color)
+                tip = getattr(arrow, "tip", None)
+                if tip is not None:
+                    tip.set_fill(color=current_color)
+                    tip.set_stroke(color=current_color)
+            return updated_group
+
+        return UpdateFromAlphaFunc(animation_group, update_reaction_colors)
 
     def fade_pathway(self, path_id: str, opacity: float = 0.15) -> Animation:
         """
@@ -323,7 +352,7 @@ class MetabolicModel(BaseComponent):
 
     def show_regulation(self, reaction_id: str, direction: str) -> Animation:
         """
-        Place an up/down regulation arrow beside a reaction.
+        Color a reaction according to regulation direction.
 
         Parameters
         ----------
@@ -334,16 +363,12 @@ class MetabolicModel(BaseComponent):
         if arrow is None:
             return AnimationGroup()
 
-        marker = self._build_regulation_marker(arrow=arrow, direction=direction)
-        existing = self._regulation_by_reaction.get(key)
-
-        if existing is None:
-            marker.set_opacity(0.0)
-            self.regulation_arrows.add(marker)
-            self._regulation_by_reaction[key] = marker
-            return marker.animate.set_opacity(1.0)
-
-        return existing.animate.become(marker)
+        normalized = str(direction).strip().lower()
+        if normalized == "up":
+            return arrow.animate.set_color(UP_ARROW_COLOR)
+        if normalized == "down":
+            return arrow.animate.set_color(DOWN_ARROW_COLOR)
+        return AnimationGroup()
 
     def zoom_to_region(self, region_id: str) -> Animation:
         """Scale and recentre the model to focus on a sub-region."""
