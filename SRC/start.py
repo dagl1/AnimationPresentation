@@ -3,8 +3,8 @@ import os
 import subprocess
 
 # ── Scene to render ───────────────────────────────────────────────────────────
-SCENE = os.getenv("MANIM_SCENE", "BiologicalContextDebug")
-SCENE_FILE = os.path.join("src", "scenes", "scene_01_biological_context.py")
+SCENE = os.getenv("MANIM_SCENE", "Scene01Storyboard")
+SCENE_FILE = os.getenv("MANIM_SCENE_FILE", os.path.join("src", "scenes", "scene_01.py"))
 
 QUALITY = "-qk"  # quick quality for fast iteration
 RENDERER = "--renderer=opengl"

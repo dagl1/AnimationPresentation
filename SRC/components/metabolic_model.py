@@ -32,7 +32,11 @@ from manim import (
     AnimationGroup,
     Arrow,
     Circle,
+    ManimColor,
+    UpdateFromAlphaFunc,
     VGroup,
+    VMobject,
+    interpolate_color,
 )
 
 from components.base import BaseComponent
@@ -109,6 +113,8 @@ class MetabolicModel(BaseComponent):
 
         self.node_by_id: dict[str, Circle] = {}
         self.reaction_by_id: dict[str, Arrow] = {}
+        self.co_substrates_by_reaction: dict[str, VGroup] = {}
+        self._base_opacity_by_mobject_id: dict[int, tuple[float, float]] = {}
         self.pathway_groups: dict[str, VGroup] = {}
         self._regulation_by_reaction: dict[str, Arrow] = {}
 
@@ -141,26 +147,76 @@ class MetabolicModel(BaseComponent):
         )
 
         self.pathway_groups = {
-            self.PATHWAY_GLYCOLYSIS: VGroup(self.glycolysis_nodes, self.glycolysis_arrows),
-            self.PATHWAY_TCA: VGroup(self.tca_nodes, self.tca_arrows),
-            self.PATHWAY_OXPHOS: VGroup(self.oxphos_nodes, self.oxphos_arrows),
-            self.PATHWAY_ALT_ENTRY: VGroup(self.alt_entry_nodes, self.alt_entry_arrows),
+            self.PATHWAY_GLYCOLYSIS: self._build_pathway_group(
+                self.glycolysis_nodes,
+                self.glycolysis_arrows,
+                reaction_ids=["G1_G2", "G2_G3", "G3_G4", "G4_G5", "G5_T1"],
+            ),
+            self.PATHWAY_TCA: self._build_pathway_group(
+                self.tca_nodes,
+                self.tca_arrows,
+                reaction_ids=[
+                    "T1_T2",
+                    "T2_T3",
+                    "T3_T4",
+                    "T4_T5",
+                    "T5_T6",
+                    "T6_T7",
+                    "T7_T8",
+                    "T8_T1",
+                ],
+            ),
+            self.PATHWAY_OXPHOS: self._build_pathway_group(
+                self.oxphos_nodes,
+                self.oxphos_arrows,
+                reaction_ids=["O1_O2", "O2_O3", "O3_O4", "O4_O5", "T7_O2", "T6_O3"],
+            ),
+            self.PATHWAY_ALT_ENTRY: self._build_pathway_group(
+                self.alt_entry_nodes,
+                self.alt_entry_arrows,
+                reaction_ids=["A1_T5"],
+            ),
             self.PATHWAY_CO_SUBSTRATES: VGroup(
                 self.co_substrate_nodes,
                 self.co_substrate_arrows,
             ),
-            "tca_cycle": VGroup(self.tca_nodes, self.tca_arrows),
-            "upper_tca": VGroup(
+            "tca_cycle": self._build_pathway_group(
+                self.tca_nodes,
+                self.tca_arrows,
+                reaction_ids=[
+                    "T1_T2",
+                    "T2_T3",
+                    "T3_T4",
+                    "T4_T5",
+                    "T5_T6",
+                    "T6_T7",
+                    "T7_T8",
+                    "T8_T1",
+                ],
+            ),
+            "upper_tca": self._build_pathway_group(
                 self.node_by_id["T1"],
                 self.node_by_id["T2"],
                 self.node_by_id["T3"],
                 self.node_by_id["T8"],
+                self.reaction_by_id["T1_T2"],
+                self.reaction_by_id["T2_T3"],
+                self.reaction_by_id["T3_T4"],
+                self.reaction_by_id["T7_T8"],
+                self.reaction_by_id["T8_T1"],
+                reaction_ids=["T1_T2", "T2_T3", "T7_T8", "T8_T1"],
             ),
-            "lower_tca": VGroup(
+            "lower_tca": self._build_pathway_group(
                 self.node_by_id["T4"],
                 self.node_by_id["T5"],
                 self.node_by_id["T6"],
                 self.node_by_id["T7"],
+                self.reaction_by_id["T3_T4"],
+                self.reaction_by_id["T4_T5"],
+                self.reaction_by_id["T5_T6"],
+                self.reaction_by_id["T6_T7"],
+                self.reaction_by_id["T7_T8"],
+                reaction_ids=["T3_T4", "T4_T5", "T5_T6", "T6_T7", "T7_T8"],
             ),
         }
 
@@ -211,6 +267,7 @@ class MetabolicModel(BaseComponent):
         ----------
         path_id : str
             One of: ``'glycolysis'``, ``'tca'``, ``'oxphos'``,
+
             or a custom subset key.
         opacity : float
             Target opacity (default 0.15 = nearly invisible).
@@ -219,8 +276,33 @@ class MetabolicModel(BaseComponent):
         group = self.pathway_groups.get(key)
         if group is None:
             return AnimationGroup()
+
         clamped = max(0.0, min(1.0, float(opacity)))
-        return group.animate.set_opacity(clamped)
+        members = self._unique_family_members(group)
+        start_opacities = {
+            id(mob): (float(mob.get_stroke_opacity()), float(mob.get_fill_opacity()))
+            for mob in members
+            if isinstance(mob, VMobject)
+        }
+        target_opacities = {
+            id(mob): tuple(value * clamped for value in self._base_opacity_for(mob))
+            for mob in members
+            if isinstance(mob, VMobject)
+        }
+
+        def update_pathway_opacity(updated_group: VGroup, alpha: float) -> VGroup:
+            for mob in members:
+                if not isinstance(mob, VMobject):
+                    continue
+                start_stroke, start_fill = start_opacities[id(mob)]
+                target_stroke, target_fill = target_opacities[id(mob)]
+                current_stroke = start_stroke + ((target_stroke - start_stroke) * alpha)
+                current_fill = start_fill + ((target_fill - start_fill) * alpha)
+                mob.set_stroke(opacity=current_stroke)
+                mob.set_fill(opacity=current_fill)
+            return updated_group
+
+        return UpdateFromAlphaFunc(group, update_pathway_opacity)
 
     def show_flux(self, reaction_id: str, magnitude: float) -> Animation:
         """
@@ -273,6 +355,55 @@ class MetabolicModel(BaseComponent):
         region_shift = group.get_center() - self.get_center()
         target_center = self.get_center() - (0.35 * region_shift)
         return self.animate.scale(1.15).move_to(target_center)
+
+    def fade_pathways(
+        self, path_ids: list[str] | tuple[str, ...], opacity: float = 0.15
+    ) -> Animation:
+        """Fade multiple pathways/subsets with one stable combined animation."""
+        members: list[VMobject] = []
+        seen_ids: set[int] = set()
+
+        for path_id in path_ids:
+            group = self.pathway_groups.get(str(path_id).strip().lower())
+            if group is None:
+                continue
+
+            for mob in self._unique_family_members(group):
+                mob_id = id(mob)
+                if mob_id in seen_ids:
+                    continue
+                seen_ids.add(mob_id)
+                members.append(mob)
+
+        if not members:
+            return AnimationGroup()
+
+        return self._fade_members(members, opacity=opacity)
+
+    def _fade_members(self, members: list[VMobject], opacity: float) -> Animation:
+        clamped = max(0.0, min(1.0, float(opacity)))
+        animation_group = VGroup(*members)
+
+        start_opacities = {
+            id(mob): (float(mob.get_stroke_opacity()), float(mob.get_fill_opacity()))
+            for mob in members
+        }
+        target_opacities = {
+            id(mob): tuple(value * clamped for value in self._base_opacity_for(mob))
+            for mob in members
+        }
+
+        def update_pathway_opacity(updated_group: VGroup, alpha: float) -> VGroup:
+            for mob in members:
+                start_stroke, start_fill = start_opacities[id(mob)]
+                target_stroke, target_fill = target_opacities[id(mob)]
+                current_stroke = start_stroke + ((target_stroke - start_stroke) * alpha)
+                current_fill = start_fill + ((target_fill - start_fill) * alpha)
+                mob.set_stroke(opacity=current_stroke)
+                mob.set_fill(opacity=current_fill)
+            return updated_group
+
+        return UpdateFromAlphaFunc(animation_group, update_pathway_opacity)
 
     # ─── Internal builders ───────────────────────────────────────────────────
 
@@ -388,8 +519,42 @@ class MetabolicModel(BaseComponent):
         target_group.add(arrow)
         return arrow
 
+    def _build_pathway_group(
+        self, *mobjects, reaction_ids: list[str] | None = None
+    ) -> VGroup:
+        group = VGroup(*mobjects)
+        for reaction_id in reaction_ids or []:
+            co_group = self.co_substrates_by_reaction.get(self._reaction_key(reaction_id))
+            if co_group is not None:
+                group.add(co_group)
+        return group
+
+    def _unique_family_members(self, group: VGroup) -> list[VMobject]:
+        unique_members: list[VMobject] = []
+        seen_ids: set[int] = set()
+        for mob in group.family_members_with_points():
+            mob_id = id(mob)
+            if mob_id in seen_ids:
+                continue
+            seen_ids.add(mob_id)
+            unique_members.append(mob)
+        return unique_members
+
+    def _base_opacity_for(self, mob: VMobject) -> tuple[float, float]:
+        mob_id = id(mob)
+        cached = self._base_opacity_by_mobject_id.get(mob_id)
+        if cached is not None:
+            return cached
+
+        stroke_opacity = float(mob.get_stroke_opacity())
+        fill_opacity = float(mob.get_fill_opacity())
+        cached = (stroke_opacity, fill_opacity)
+        self._base_opacity_by_mobject_id[mob_id] = cached
+        return cached
+
     def _add_co_substrate_pair(self, reaction_id: str) -> None:
-        arrow = self.reaction_by_id.get(self._reaction_key(reaction_id))
+        key = self._reaction_key(reaction_id)
+        arrow = self.reaction_by_id.get(key)
         if arrow is None:
             return
 
@@ -458,6 +623,12 @@ class MetabolicModel(BaseComponent):
             max_stroke_width_to_length_ratio=10,
         )
         self.co_substrate_arrows.add(in_arrow, out_arrow)
+        self.co_substrates_by_reaction[key] = VGroup(
+            input_node,
+            output_node,
+            in_arrow,
+            out_arrow,
+        )
 
     def _build_regulation_marker(self, arrow: Arrow, direction: str) -> Arrow:
         flow = arrow.get_end() - arrow.get_start()
@@ -488,3 +659,35 @@ class MetabolicModel(BaseComponent):
             tip_length=0.12,
             max_stroke_width_to_length_ratio=10,
         )
+
+    def reset_reaction_colors(self, reaction_ids: list[str]) -> Animation:
+        """Reset multiple reactions to default color in one animation."""
+        arrows = []
+        for rid in reaction_ids:
+            key = self._reaction_key(rid)
+            arrow = self.reaction_by_id.get(key)
+            if arrow is not None:
+                arrows.append(arrow)
+
+        if not arrows:
+            return AnimationGroup()
+
+        animation_group = VGroup(*arrows)
+        start_colors = {id(arrow): arrow.get_color() for arrow in arrows}
+        target_color = REACTION_COLOR
+
+        def update_arrow_colors(updated_group: VGroup, alpha: float) -> VGroup:
+            for arrow in arrows:
+                start_color = start_colors[id(arrow)]
+                current_color = ManimColor(
+                    interpolate_color(start_color, target_color, alpha)
+                )
+                # Reset the full arrow color (shaft + tip) in one call.
+                arrow.set_color(current_color)
+                tip = getattr(arrow, "tip", None)
+                if tip is not None:
+                    tip.set_fill(color=current_color)
+                    tip.set_stroke(color=current_color)
+            return updated_group
+
+        return UpdateFromAlphaFunc(animation_group, update_arrow_colors)

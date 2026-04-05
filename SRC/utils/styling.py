@@ -5,16 +5,7 @@ ALL colors, font sizes, and stroke widths must be sourced from here.
 Never define visual constants inline in component or scene code.
 """
 
-from manim import (
-    BLACK,
-    GREEN,
-    ORANGE,
-    PURE_BLUE,
-    RED,
-    WHITE,
-    YELLOW,
-    ManimColor,
-)
+from manim import BLACK, GREEN, ORANGE, PURE_BLUE, RED, WHITE, YELLOW, ManimColor
 
 # ─── Background ───────────────────────────────────────────────────────────────
 BACKGROUND_COLOR: ManimColor = BLACK
@@ -29,7 +20,7 @@ NODE_FILL_OPACITY: float = 0.0  # transparent interior by default
 
 # ─── Expression direction arrows ─────────────────────────────────────────────
 UP_ARROW_COLOR: ManimColor = ORANGE  # ↑ up-regulated  (style guide)
-DOWN_ARROW_COLOR: ManimColor = PURE_BLUE  # ↓ down-regulated – rendered purple-ish
+DOWN_ARROW_COLOR: ManimColor = ManimColor("#A855F7")  # ↓ down-regulated (purple)
 
 # ─── Emphasis / highlight ────────────────────────────────────────────────────
 # Style guide: ONLY yellow glow – never change the object's own color.
