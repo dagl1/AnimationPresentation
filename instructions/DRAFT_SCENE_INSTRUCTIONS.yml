@@ -1,0 +1,99 @@
+Color mapping (global)
+  Genes = Letters white
+  Proteins = 3 different shapes, with green, blue, orange colors, rectangle with 2 bumps, single larger rectangle 
+  that can fit in it, triangles (differen types of oranges), the rectangle shapes can form together
+  Reactions = lines connecting nodes, with arrows, thickness variable 
+  metabolties = white nodes
+  High expression = up arrow and orange
+  Low expression =  down arrow and purple
+  Highlight/emphasis = yellow glow or outline
+Shapes
+  Genes → letters (A, B, C)
+  Reactions → lines with arrows, thickness variable based on flux/activity
+  Complexes (AND) → A + B stuck together,
+  OR → just next to each other 
+
+IFC identification:
+  - comes from a table of reactions ( 10 long) with different forms of booleans, some single gene, some OR-linked,
+  - some AND-linked some duplicates
+  - take out all GPRS, remove duplicates, boil down to only AND linked
+  - so (a or b) and (c or d) becomes ac, ad, bc, bd
+  - these are IFCs
+
+Component <toy_network>?
+n_amount_of_reactions (edges)
+nodes around them (metabolites)
+vertical & horizontal layouts
+gene placement: above reaction
+abilities:
+  - add_gene_labels()
+  - show_expression(values)
+  - animate_and_binding()
+  - animate_or_sum()
+  - duplicate_layout(vertical=True)
+
+
+Component <metabolic_model>?
+Shows only nodes and edges, with extra side input/output nodes in small for co substrates
+shows glycolysis, 5 reactions down, then TCA cricle and on the left 5 reactions for oxidative phosphorylation
+very illustrative/stylized 
+should have alternative input for TCA cycle that only uses the bottom, that way glycosylysis can be removed for imat
+should be able to highlight specific reactions, fade pathways, 
+should also be able to show up and down regulation next tto each reaction
+  abilties
+- highlight_reactions(high, low)
+- fade_pathway(path_id)
+- show_flux(direction, magnitude)
+- zoom_to_region()
+
+Component Floating A's Bs
+text objects
+Move physically and bind (animation heavy but powerful)
+
+graphs:
+Stylized illustrative graphs 
+simple x-y plots, no negative values, very faint gridlines
+  abilities:
+- show_threshold(line)
+- highlight_region()
+- animate_points()
+
+subgraphs:
+  -- PTR explained 40% (categorical x-axis, RNA sequence features, and y-axis is R2)
+  -- Proteomics detection limit graph (Y-axis is log2, no real x axis, just point cloud with a line for detection 
+  limit at 9), should be able to highlight whole area below 9,
+  -- RNA halflife steady state graph (time on x-axis, concentration % on y-axis,
+     with 3 lines, old rna, new rna, and total rna, half life indication and turn over where graphs meet)
+     total rna is steady at 100%, 
+  -- RNA turnover graph following a partial differential equation, with time on x-axis and concentration on y-axis,
+     important to show formula with its components, and then show how changing the parameters changes the graph (e.g. increase transcription rate, increase degradation rate, etc)
+  -- protein steady state turnover graph similar to RNA turnover graph,
+  -- PTR vs missing tissue graph, amount missing tissues 0 to 28 (+ space for 29th) on x-axis, PTR on y-axis,
+     PTR boxplots for each amount of missing tissues, starting around 4.5 log10 and going down to 3.5 log10, 
+      with a regression line through it. boxplots should be about as big as 0.5 on the y axis
+  -- Kcat per substrate graph in different compartments, x axis as cellular compartments (c, m, l etc), 
+      y axis from 0.8 to 2.1 log 10, most values around 1.5 with ranges going +- 0.3, lysosome and mitochondria are 
+      at 1.8~
+
+within scene style: continuity, objects morph, duplicate + morph, or slide out of screen (mostly for table entries 
+  and genes)
+
+QP:
+Full readable math (LaTeX, center stage)
+EquationBlock
+LaTeX rendering
+Highlight parts
+Annotate components
+
+Tables:
+tables are generally not more than 10 rows, except for PTR which is 15 long, and 5 columns + gene identifers as index
+  column
+- take out specific rows for fading, use utils/Utilities.py
+- highlight_rows()
+- highlight_columns()
+- compute_median()
+- show_imputation()
+
+
+
+

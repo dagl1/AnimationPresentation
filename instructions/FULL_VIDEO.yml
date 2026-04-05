@@ -1,0 +1,306 @@
+
+
+
+## Scene 1 How can we integrate gene expression into metabolic models to predict a patient's
+##  metabolic state?
+## Story: how can we tell the metabolic state inside tissue, for instance from a biopsy?
+## In metabolic modeling this is done through integrating gene expression data into genome-scale metabolic models,
+## and there are many methods to do this, for instance we can set some threshold for highly expressed and lowly
+## then attempt to include as many highly expressed reactions as possible, while excluding lowly expressed reactions, this is the idea behind iMAT (Shlomi et al. 2008).
+## Of cousre this is still a metabolic network and thus we cannot just remove all low expression reactions, we have
+#  to keep paths.
+## Alternatively we can compare values of gene expression between samples, calculate the log2 fold change,
+# and set the upper and lower bounds of reactions based on the fold change, this is the idea behind eFlux (Colijn et al. 2009).
+## All these methods rely on one key intuition: if a gene is highly expressed, then the reaction it catalyzes is likely to be active, and if a gene is lowly expressed, then the reaction it catalyzes is likely to be inactive.
+## If we compare samples, higher gene expression in one sample compared to another, indicates higher activity of the reaction it catalyzes,
+## For instance if we have a sample whose reaction have some expression (20, 20), and antoher
+## pathway with higher expression (200, 200), then we can infer that the second pathway is more active than the
+## first pathway. One might wonder if this intuition is correct, but at least in its most extreme case
+## where we see that a gene is not expressed at all, we can say that any sample that does have this
+## gene expressed must have more capability than when there is no gene at all.
+## Of course this all relies on ways to assign gene expression to reactions, and this is where GPR rules come in
+
+-- Draw person left
+-- highlight a heart, 
+-- take the highlight and convert it to a question mark on the right
+-- create a <metabolic_model> on the right
+-- fade out person + heart 
+-- show <rna molecules> + purple/orange heatmap for gene expression
+-- fade out all but metabolic model and enlarge metabolic model and move to middle
+-- Put iMAT text to right top of metabolic model, reference at bottom right to Shlomi et al. 2008
+-- Highlight high and low expression reactions in the metabolic model 
+-- Fade out some of the metabolic model pathways, use <metabolic_model.fade_pathway> to fade
+-- Then fade it back in, and show eFlux below iMAT, show up and down arrows at specific reactions to indicate 
+-- relative activity changes, reference at bottom right to Colijn et al. 2009
+-- Multiple methods to integrate gene expression into metabolic models, but all using 1 key intuition
+-- fade out iMAT and eFlux, and fade out metaoblic model, then put two <toy_networks> above each other
+-- put values for gene expression above the edges, (20, 20) 
+-- then put larger edges for the second model when showing (200, 200)
+-- remove the second set of values, and instead put a red x through the second reaction of the bottom pathway 
+together with (20, 0)
+-- fade out
+
+## Scene 2 GPR rules
+# Gene Protein Reaction (GPR) rules are a key component of metabolic models, and they describe how genes are related to the reactions they catalyze.
+# Story: how do we assign gene expression to reactions? This is done through GPR rules, which are boolean expressions that describe how genes are related to the reactions they catalyze.
+# To illustrate this, let's look at a toy network with 3 reactions and 4 genes (A, B, C, D).
+# A reaction can be catalyzed by a single gene, for instance if we have a reaction that is catalyzed by gene A, then the GPR rule for that reaction would be simply "A".
+# However, if we have a reaction that is catalyzed by two genes, for instance if we have a reaction that is catalyzed
+#by a complex of two proteins, then the GPR rule for that reaction would be "A AND B", which means that both gene A and gene B need to be expressed for the reaction to be active.
+# Alternatively, if we have a reaction that can be catalyzed by either gene C or gene D, then the GPR rule for that reaction would be "C OR D", which means
+#that either gene C or gene D needs to be expressed for the reaction to be active.
+# Finally, we can have a combination of AND and OR, for instance if we have a reaction that is catalyzed by a complex of two proteins, but either of those proteins can be replaced by another protein, then
+# for instance (A or B) AND (C or D), which means that we have 4 functioning combinations, A and C, A and D, B and C, B and D, any of which would be sufficient for the reaction to be active.
+# To integrate gene expression into metabolic models, methods use these GPR rules, but 
+# more importantly they rely on the same intuition that if a gene is highly expressed, then the reaction it catalyzes is likely to be active, and if a gene is lowly expressed, then the reaction it catalyzes is likely to be inactive.
+# However gene expression isn't the same as enzymatic capacity, and the process to do so (implicitly) relies on three main steps
+# 1. Finding how much protein exists (this is often skipped when using gene expression, otherwise proteomics data can
+#be used, but this is often not available)
+# 2. Assigning gene expression to reactions using GPR rules
+# 3. Setting enzyme_specific catalytic kcat values, as each enzyme might have its own speed at which it catalyzes the reaction
+# GPRimproved is a python-based implementation for integrating gene expression into metabolic models which tackles 
+# three steps.
+# In summary, GPRimpvoed first uses species and tissue-specific protein-to-RNA datasets,
+# to convert gene expression to protein abundance. It then uses a novel allocation strategy
+# that takes into account total enzyme abundance when allocating multimeric enzyme complexes,
+# while being independent of model objectives, something which we will see come up later
+# Last, each allocated enzyme or enzyme complex is given its reaction-specific catalytic kcat value, which is important as different enzymes can have different speeds at which they catalyze reactions, and this can be important for accurate predictions of metabolic states.
+
+-- show a <toy_network> with 3 reactions, and 4 genes (A, B, C, D)
+-- show boolean expression operators
+-- show AND-linking, put A and B above the first reaction,
+-- show OR-linking, put C and D above the second reaction
+-- show a combination of AND and OR, put A and B above the third reaction, and then put C and D above that with an OR-linking
+-- fade out the toy network, and show a <metabolic_model> with gene expression again
+-- move to left and put "Integration relies on three main steps" 
+-- 1. "Finding how much protein exists"
+-- 2. "Assigning gene expression to reactions using GPR rules"
+-- 3. "Setting enzyme_specific catalytic kcat values"
+-- fade out metabolic model and show "GPRimproved"
+[
+  # the following will be cut outs from the other scenes so do not need to be produced here
+-- PTR dataset, to convert gene expression to protein abundance
+-- novel allocation strategy for multimeric enzyme complexes, while ignoring non-catalytic subunits
+-- setting enzyme-specific catalytic kcat values, as each enzyme might have its own speed at which it catalyzes the reaction
+]
+
+
+## Scene 3 Step 1: Finding how much protein exists
+# Story: While an increase in gene expression is often associated with an increase in protein abundance,
+# the amount of protein per RNA (PTR) is gene specific, and thus we can see in the toy_example that
+# if we want to say something about (A5, B10) and (A10, B5) that without other knowledge these are the same
+# if we know however that the PTR of gene A is 10, while the PTR of gene B is 1,
+# then in reality we do have clear differences as we it becomes (A50, B10) and (A100, B5),
+# the PTR of a gene is dependent on many factors, first of is the RNA itself, it has a half-life,
+# with shorter half lifes leading to lower overall steady-steate RNA levels.
+# Coupled to this is translational efficiency: how many ribosomes or proteins are created from each RNA.
+# On the protein side we then also have protein half-life, and together these will lead to the PTR of the protein.
+# For instance, when performing RNA-seq of a short half-life RNA we will at any moment only see a few RNA molecules,
+# but if the translational efficiency is high, and the protein half-life is long, then we can have a lot of protein from just a few RNA molecules, leading to a high PTR.
+# While some of these factors are of course condition-specific, a recent paper showed that with just sequence features,
+# over 40% of the variance in PTR can be explained (show graph). Similarly, we see that genes in these datasets
+# behave much more similar to themselves across tissues than to other genes in the tissue.
+# GPRimproved uses a species and tissue-specific PTR dataset to convert gene expression to protein abundance.
+# Several species-specific datasets have been identified, and these are processed as follows:
+# First we select only the genes that are present in the metabolic model, and remove the rest.
+# not all genes in the metabolic model will be present in the PTR dataset, and some genes
+# in the dataset mighnt not have values in all of the columns (tissues) of the dataset.
+# first the median of each tissue is calculated, and the ratio of all of these to their median is calculated
+# then genes present at least once in the dataset are imputed by taking the median of all of their values across tissues
+# and adjusting it for the median of the tissue in which it is being imputed. If a tissue overall has higher PTR values, then the imputed value will be higher, and if a tissue overall has lower PTR values, then the imputed value will be lower.
+# Following this there are still some genes that are not present in the dataset, and to impute these
+# we first recalcualte the median of each tissue, and use that median to impute the remaining genes.
+# why would we recalcualte the median? This has to do with a common limitation in proteomics.
+# The minimum abundance necessary to identify signal is often quite high, for instance in this graph in log2,
+# we see the horizontal line at 9. Any values below this value would not be picked up, and so when we see a "misisng"
+# value that could be anywhere between 0 and 9. When we plot PTRs of idnetified proteins on the y axis,
+# and on the x axis we plot the number of tissues in which the protein is missing,
+# we see a negative correlation ; values hvoering around 9 in several tissues, might be missing in some.
+# thus when we initailly imputed the genes based on some of the identified values, we expect these to be lower
+# genes that are then entirely missing would then fall at the end of that negative correlation.
+# of course we don't know if they are just below 9 or much lower, so we take recalcualted tissue median instead
+# with this PTR data  is prepared and covers all metabolic genes in the model,
+# and by multiplying each gene's expression by its PTR, we can convert gene expression to protein abundance.
+-- show a <toy_network> with 3 reactions, and 4 genes (A, B, C, D)
+-- show values for gene expression above the edges, (A5, B10) and (A10, B5)
+-- show that without other knowledge these are the same
+-- show that if we know the PTR of gene A is 10, while the PTR of gene B is 1, then in reality we do have clear differences as we it becomes (A50, B10) and (A100, B5)
+-- show the factors that affect PTR: RNA half-life (degradation graph),
+-- translational efficiency, show ribosome moving over RNA multiple times
+-- and protein half-life (degradation graph)
+-- show the graph from the paper showing that with just sequence features, over 40% of the variance in PTR can be explained
+-- show a hypothetical heatmap hihglighting genes (more similar across rows)
+-- Preparing the dataset
+-- Table with gene names on the left, 5 columns. Show model genes
+-- highlight the genes in the model and tabel that match, remove the rest of the genes in the table
+-- keep all oens of the model
+-- calculate the median above each column, then calcualte the median of those medians and convert
+-- teh values to ratios of the median, show this above each column
+-- highlight a gene with a missing value in the table, impute by its median across tissues
+-- then highlight the ratio-median of the tissue in which it is being imputed, and show how the imputed value is adjusted based on that
+-- highlight the genes in the model that are still missing, and make them red
+-- add empty rows with the red genes to the bottom of the table, and highlight the tissu median
+-- recaclualte the median of each tissue.
+-- put a question mark and make what is on screen smaller and move to the left,
+-- then show a graph on the right with log2, a horizontal line at 9 and put some dots above and below the line
+-- highlight the values below 9 and then put highligh the area undearneat the line
+-- move it to the bottom right and then show a graph with PTR on the y axis and number of tissues in which the protein
+  is missing on the x axis,
+-- show negative correlation, 28 tissues with confidence intervals, leave space for 29th
+-- put a cirlce around the spot wheret he 29th should be
+-- highlight the whole area under the line in the other graph, and then show how the imputed values
+-- fade out both graphs and enlarge the table again, put the recalculated tissue median in the missing values
+-- let the gene expression values come in, and put large multiplcation symbol and at the bottom
+-- "protein abundance"
+
+# Scene 4 Step 2: Assigning gene expression to reactions using GPR rules
+# Story: Now that we have protein abundance, we need to assign it to reactions using GPR rules.
+# We already discussed how GPR rules work, and a simple way to do this is to take the minimum of the genes in an AND-linking
+# and the sum of the genes in an OR-linking. For instance in the following two reaction toy example,
+# gene A and gene B are in an AND-linking, so we take the minimum of their values (show 5 A and 10 Bs floating, make
+#  them attach and leave 5 of the b's without a partner
+# for the second reaction, gene C and gene D are in an OR-linking, so we take the sum of their values,
+# as both C and D can function independently.
+# This works fine here, however what happens when we introduce another toy example, vertical in this case
+# where gene A is also used together with a gene E in an AND-linking. If there is also 10 E,
+# we would thus say that there is 5AB and 5AE, but we started out saying that in total there isonly 5 A
+# A set of models called ecGEMS (enzyme-constrained genome-scale metabolic models) have been developed to tackle this problem
+# and do so by making reactions use up their enzyme's abundance, and so in total no over allocation can occur
+# however this requires users to define an objective function. Let's say that we want to maximize something
+# that is downstream of the horizontal path, but not the vertical one. The ecGEMS would then allocate all of the A to
+#  the horizontal path (AB) and none to the vertical path (AE), even though we know that both paths are active, and thus this is not ideal.
+# These models also utilse catayltic activity values, which are step three of the process of integrating gene
+#  expression into metabolic models. Even if both paths could lead to the maximization of the objective,
+# the ecGEM would choose whichever reaction (AB or AE) has the higher catalytic activity, and ignore the other one.
+# What if the objective is something that is not downstream of either path, or we don't even know the objective?
+-- show a <toy_network> with 3 reactions, and 4 genes (A, B, C, D)
+-- show boolean expression operators
+-- show a table with the gene values, A=5, B=10, C=5, D=10
+-- show AND-linking, put A and B above the first reaction,
+-- show OR-linking, put C and D above the second reaction
+-- show 5 floatign A's and 10 floating B's
+-- make them attach and leave 5 of the b's without a partner, show a Min(A, B)
+-- transitiion it to min(5, 10) and show that the value is 5
+-- show 5 floating C's and 10 floating D's, show a Sum(C, D)
+-- transition it to Sum(5, 10) and show that the value is 15
+-- show a second toy example, vertical this time, with A and E in an AND-linking, and show 10 E's
+-- show that there is 5AB and 5AE, but we started out saying that in total there is only 5 A
+-- highlight the 5 in the table for A and show that we are trying to allocate it to both AB and AE
+-- show the ecGEM, put Gecko and the reference to Sánchez et al. 2017, 
+-- for this we need an objective function, put show a downstream reaction horizontally to the right of the CD reaction
+-- and show that it allocates all of the A to the horizontal path (AB) and none to the vertical path (AE)
+-- now move the objective to be downstream of both CD and AE, and introduce kcats
+-- now put kcat values at each reaction (C and D get their own as they are separate functioning)
+-- show that the ecGEM would choose whichever reaction (AB or AE) has the higher catalytic activity, and ignore the other one
+-- fade out the ecgem and show GPRimproved
+  ### Scene 5 step 2.2: GPRimproved's novel allocation strategy for multimeric enzyme complexes, while ignoring non-catalytic subunits
+  # Story: Instead GPRimproved uses a novel allocation strategy that takes into account total enzyme abundance when 
+  #  allocating
+  #  multimeric enzyme complexes, while being independent of model objectives. This is im
+  # How does this work? First we take all GPRs of all reactions, and identify any gene or combination of genes
+  # that can catalyze at least 1 reaction. Let's call these independently functioning complexes IFCs
+  #  Some of these might be part of multiple reactions, others might work together,
+  # while yet other genes just form a complex all on their own.
+  # Each IFC would have a maximum abundance which is the minimum of its consitutent genes.
+  # GPRimproved then utilises a QP (quadratic programming) problem that attempts to allocate
+  # the avialble constituents of all IFCs such that the squared deviation from the maximum abundance of each IFC is minimized
+  # while ensuring no gene is allocated more than its abundance.
+  # In our previous example, both AE and AB receive 2.5 of A, and thus both are active.
+  # this allocation strategy is independent of model objectives, and instead follows the intuition
+  # that if a cell has one or more subunits expressed for a complex, then subsequently
+  # under regular affinities we would find at least some of that complex present.
+  # GPRimproved adds one optional feature called "gene trimming" which is designed to reduce the 
+  # disastrous effect of false AND-linked genes. While a wrong OR-linked gene can lead to overestimation
+  # of enzymatic capacity, generally increasing capacity in rate-limited or stoichiometrically constrained reactions
+    # is not as bad as setting the capacity of a multienzyme complex to zero or a very low number,
+  # as a result of a false AND-linked gene.
+  # Gene trimming works by first identifying stable genes in the gene exrpession dataset,
+  # and catagorising these as trimmable candidates. In each IFC, before calcualting the QP
+  # if an IFC contains enough members, let's say 8, and the lowest abundance one is trimmable,
+  # for the QPs calcualtion this gene does not count. This process is repated iteratively until the 
+    # lowest abundance gene is not trimmable, or there are not enough members to trim anymore (thus less than 8).
+  # While this does lead to some overestimation of enzymatic capacity in reactions that should not have been trimmed.
+  # it  is likely that complex constituentst that should not be trimmed will likely be closer to their peers, than
+  # constituents that should be trimmed ( 10, 11, 12, 13, 14, 15, 16, 17). trimming 10 means a slight overestimation,
+  # after calculating the min() but if instead the 10 is the same but all values increase 100fold, then the 10
+  # is more likely to be a false AND-linked gene. Of course it is possible the 10 is a real condition-specific effect,
+  # which is why only genes that are stable across the dataset are catagorised as trimmable candidates,
+  # if some samples show high values for the 10, while others show low values, then it is likely that this is a real effect and thus not trimmable.
+  # After solving the QP problem, we go back to reactions and can assign the allocated abundance of the IFCs to the
+  #  reactions they catalyze. In GPRimproved, this is only done after incorperating the kcats.
+-- show the process of identifying IFCs from all GPRs, and show how some of these might be part of multiple reactions, 
+-- others might work together, while yet other genes just form a complex all on their own
+-- show the QP problem, and how it allocates the available constituents of all IFCs such that the squared deviation from the maximum abundance of each IFC is minimized while ensuring no gene is allocated
+$$
+\begin{align}
+&  max_i = \min_{p \in \mathcal{I}_{FP,i}} e_p   
+\quad &&&& \forall i \in \mathcal{I}_{FP} \\[8pt]
+\text{QP:} \quad 
+\min_{a_i,\,e_p} \quad 
+& \sum_{i \in \mathcal{I}_{FP}} \left( 1 - \frac{a_i}{max_i} \right)^2 \\[6pt]
+\text{s.t.} \quad
+& e_p \ge \sum_{i :\, p \in \mathcal{I}_{FP,i}} a_i 
+\quad &&&& \forall i \in \mathcal{I}_{FP} \\[4pt]
+& e_p \ge 0 
+\quad &&&& \forall p \in \mathcal{P}
+\end{align}
+$$
+-- highligh the max_i, which is the maximum abundance of each IFC, and show how it is the minimum of its consitutent genes
+-- highlight the objective function, which is the sum of the squared deviation from the maximum abundance of each IFC, and show how it is minimized
+-- highlight the first constraint, which ensures that the allocated abundance of each IFC is at least the sum of the abundances allocated to the reactions it catalyzes
+-- highlight the second constraint, which ensures that no gene is allocated a negative abundance
+-- show that in our previous example, both AE and AB receive 2.5 of A, and thus both are active
+-- show that this allocation strategy is independent of model objectives
+-- show the intuition that if a cell has one or more subunits expressed for a complex, then subsequently under regular affinities we would find at least some of that complex present
+-- show how gene trimming works by first identifying stable genes in the gene exrpession dataset, and catagorising these as trimmable candidates
+-- show iterative removal of the lowest abundance trimmable gene in an IFC until the lowest abundance gene is not trimmable, or there are not enough members to trim anymore (thus less than 8)
+-- highlight 10 in the (10, 11, 12, 13, 14, 15, 16, 17) example and show how trimming it leads to a slight overestimation of enzymatic capacity in reactions that should not have been trimmed
+-- change values to (10, 1000, 1200, 1300, 1400, 1500, 1600, 1700) and show how trimming the 10 is more likely to be a false AND-linked gene
+-- show how after solving the QP problem, we go back to reactions and can assign the
+-- To get back to reactions, we could sum the allocated abundance of the IFCs that catalyze each reaction
+-- however in GPRimproved, this is only done after incorperating the kcats
+
+# Scene 6 Step 3: Setting enzyme-specific catalytic kcat values
+# Story: The last step in integrating gene expression into metabolic models is setting enzyme-specific catalytic kcat values,
+# as each enzyme might have its own speed at which it catalyzes the reaction, and this can be important for accurate predictions of metabolic states.
+# these are often obtained from databases such as BRENDA, and or predicted from protein sequence and SMILES
+# metabolite representation. GPRimproved uses predictions through UniKP, which is a machine learning model that takes
+#  as input the protein sequence and the SMILES representation of the substrate.
+# GPRimproved is designed in a modular way, and thus one can use other things than UniKP.
+# In the end we must get a per-gene or per-IFC kcat value for each reaction.
+# GPRimproved does this by first predicting each gene-substrate kcat.
+# then, for each gene in every reaction, what the maximum substrate kcat is and uses this for that gene in that reaction
+# We do this because often water and other cosubstrates are not trained on, and will get low kcat values.
+# therefore we take the highest kcat value across the substrates for a gene.
+# Not all models will have SMILES for all substrates, and thus we have to impute their values.
+# GPRimproved does this by taking the median kcat value of all substrates in the same cellular
+# compartment (show graph per compartment values and how they differ, all between 1.2 and 1.6 in log10),
+# but lysosome and mitochondria deviate
+# Then for each IFC, it takes the maximum kcat of the genes in the IFC.
+# While it feels intuitive to take the rate limiting step in an AND-linking rule, which is
+# what an IFC is, this turns out to not be the case when we consider an enzyme complex
+# AB and AC. Here likely B or C are catalytic subunits, while A is acting as a scaffold.
+# it does not have a catalytic subunit and so should be predicted tohave a low kcat
+# thus we take the maximum kcat of the genes in the IFC, which allows us to ignore non-catalytic subunits.
+# As we have a per-reaction set of IFCs, each a functioning complex, we then assign their
+# reaction specific kcats and multiply their allocated abundance by this value.
+# then these values are subsequently summed up to get the total enzymatic capacity of each reaction.
+# With this GPRimproved succesfully integrated gene expression into metabolic models,
+# and we can use this to predict metabolic states of patients.
+-- show a reaction with an AND-linking of A and B, and an OR-linking of C and D
+-- show the protein sequence and SMILES representation of the substrate being input into UniKP, and show the predicted kcat value coming out
+-- show a table with gene-substrate kcat values
+-- show how for each gene in every reaction, what the maximum substrate kcat is and uses this for that gene in that reaction
+-- show how for substrates without SMILES, we take the median kcat value of all substrates in the same cellular compartment, and show the graph with per compartment values and how they differ, all between 1.2 and 1.6 in log10, but lysosome and mitochondria deviate
+-- show how for each IFC, it takes the maximum kcat of the genes in the IFC, and show the example of AB and AC, where likely B or C are catalytic subunits, while A is acting as a scaffold, and thus we take the maximum kcat of the genes in the IFC, which allows us to ignore non-catal
+ytic subunits
+-- show how we then assign their reaction specific kcats and multiply their allocated abundance by this value
+-- show how these values are subsequently summed up to get the total enzymatic capacity of each reaction
+-- show how with this GPRimproved succesfully integrated gene expression into metabolic models, and we can use this to predict metabolic states of patients
+
+
+
+
+
+
+

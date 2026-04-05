@@ -1,3 +1,0 @@
-.. currentmodule:: {{ module }}
-
-.. automethod:: {{ objname }}
