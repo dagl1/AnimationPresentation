@@ -8,6 +8,7 @@ from __future__ import annotations
 
 from manim import (
     Circle,
+    DOWN,
     Ellipse,
     Line,
     Polygon,
@@ -35,12 +36,12 @@ class Person(BaseComponent):
 
     def __init__(
         self,
-        height: float = 3.0,
+        size: float = 3.0,
         debug: bool = DEBUG,
         **kwargs,
     ) -> None:
-        self.height = height
-        self.scale_factor = height / 3.0  # Normalize to height 3.0
+        self.person_size = size
+        self.scale_factor = size / 3.0  # Normalize to size 3.0
 
         # Named sub-groups
         self.head: Circle = Circle()
@@ -64,7 +65,7 @@ class Person(BaseComponent):
             fill_opacity=0.0,
             stroke_width=NODE_STROKE_WIDTH,
         )
-        self.head.shift([0, self.height * 0.35, 0])
+        self.head.shift([0, self.person_size * 0.35, 0])
 
         # Body: vertical ellipse below head
         body_width = 0.45 * self.scale_factor
@@ -76,7 +77,7 @@ class Person(BaseComponent):
             fill_opacity=0.0,
             stroke_width=NODE_STROKE_WIDTH,
         )
-        self.body.next_to(self.head, down=body_height * 0.5, buff=-body_height * 0.2)
+        self.body.next_to(self.head, DOWN, buff=body_height * 0.1)
 
         # Arms: two lines extending from shoulders
         shoulder_y = self.body.get_top()[1] - body_height * 0.1

@@ -11,9 +11,10 @@ Supports:
   - Appending new rows
   - Sliding rows out right and squishing remaining rows together
 """
+
 from __future__ import annotations
 
-from manim import VGroup, Animation, AnimationGroup, YELLOW
+from manim import YELLOW, Animation, AnimationGroup, VGroup
 
 from components.base import BaseComponent
 from utils.styling import DEBUG, FONT_SIZE_TABLE, HIGHLIGHT_COLOR
@@ -37,21 +38,21 @@ class DataTable(BaseComponent):
 
     def __init__(
         self,
-        data:           dict,
+        data: dict,
         column_headers: list[str] | None = None,
-        fontsize:       int  = FONT_SIZE_TABLE,
-        debug:          bool = DEBUG,
+        fontsize: int = FONT_SIZE_TABLE,
+        debug: bool = DEBUG,
         **kwargs,
     ) -> None:
-        self.data           = data
+        self.data = data
         self.column_headers = column_headers or []
-        self.fontsize       = fontsize
+        self.fontsize = fontsize
 
         # Named sub-groups
-        self.header_group: VGroup       = VGroup()
-        self.row_groups:   list[VGroup] = []
+        self.header_group: VGroup = VGroup()
+        self.row_groups: list[VGroup] = []
         # (row_idx, col_idx) → cell Mobject for targeted animation
-        self.cell_map:     dict         = {}
+        self.cell_map: dict = {}
 
         super().__init__(debug=debug, **kwargs)
         self._build()
@@ -92,9 +93,7 @@ class DataTable(BaseComponent):
         """Display normalised ratio values replacing raw values in a column."""
         raise NotImplementedError
 
-    def show_imputation(
-        self, row_idx: int, col_idx: int, value: str
-    ) -> Animation:
+    def show_imputation(self, row_idx: int, col_idx: int, value: str) -> Animation:
         """
         Fill a missing cell with an imputed value using a write animation.
 
@@ -124,4 +123,3 @@ class DataTable(BaseComponent):
         Pattern sourced from utils/Utilities.py (ModifiableTable).
         """
         raise NotImplementedError
-

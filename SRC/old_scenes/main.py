@@ -3,7 +3,7 @@ import random
 import subprocess
 
 import numpy as np
-from manimlib import *
+from manim import *
 
 
 class Utils:
@@ -583,7 +583,7 @@ class Main(InteractiveScene):
         height_new_box = height_box - height_vgroup - 1.2
         self.vom_dict["height_new_box"] = height_new_box
         sample_clustering_text = Text(
-            "Sample Clustering\n" "(e.g. t-SNE)", font_size=20, opacity=0.8
+            "Sample Clustering\n(e.g. t-SNE)", font_size=20, opacity=0.8
         ).scale(1)
         sample_clustering_text.next_to(vgroup, DOWN, aligned_edge=LEFT)
         num_points = 20
@@ -664,7 +664,7 @@ class Main(InteractiveScene):
 
         ####
         chararacteristics_text = Text(
-            "Do these clusters share\n" "metabolic characteristics?",
+            "Do these clusters share\nmetabolic characteristics?",
             opacity=0.8,
             font_size=20,
         ).scale(1)

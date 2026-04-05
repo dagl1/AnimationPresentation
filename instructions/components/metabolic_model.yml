@@ -1,0 +1,226 @@
+MetabolicModel:
+
+Structure:
+- Glycolysis: vertical chain (~5 reactions)
+- TCA cycle: circular loop (center/right)
+- OxPhos: left vertical chain (~5 reactions)
+- Co-substrates: small side nodes (less prominent)
+
+Special Feature:
+- Alternative input into TCA (bottom entry)
+    → allows glycolysis to be faded independently
+
+Style:
+- Stylized, not dense
+- Clean spacing between pathways
+
+Methods:
+highlight_reactions(high=[], low=[]):
+- high: orange + upward arrow
+- low: purple + downward arrow
+
+fade_pathway(path_id):
+- reduces opacity of:
+    - glycolysis
+    - TCA
+    - OxPhos
+    - custom subsets
+
+show_flux(reaction, magnitude):
+- dynamically adjust line thickness
+
+show_regulation(reaction, direction):
+- place up/down arrows next to reaction
+
+zoom_to_region(region_id):
+- scale + move model focus
+
+
+GLOBAL COORDINATE SYSTEM
+
+Origin: (0, 0) → center of TCA cycle
+
+Units:
+- 1 unit ≈ one metabolite spacing
+
+Node sizes:
+- main metabolites: radius = 0.15
+- co-substrates: radius = 0.08
+
+Edge style:
+- straight lines unless specified
+- arrow at product node
+- default thickness = 2
+
+
+=====================================
+TCA CYCLE (CENTER, CIRCULAR)
+=====================================
+
+Center: (0, 0)
+Radius: 2.0
+Nodes: 8
+Angle step: 45 degrees
+Start angle: 90 degrees
+Direction: clockwise
+
+Node positions:
+T1: (0.00, 2.00)
+T2: (1.41, 1.41)
+T3: (2.00, 0.00)
+T4: (1.41, -1.41)
+T5: (0.00, -2.00)
+T6: (-1.41, -1.41)
+T7: (-2.00, 0.00)
+T8: (-1.41, 1.41)
+
+Edges:
+T1 → T2
+T2 → T3
+T3 → T4
+T4 → T5
+T5 → T6
+T6 → T7
+T7 → T8
+T8 → T1
+
+
+=====================================
+GLYCOLYSIS (ABOVE TCA)
+=====================================
+
+Vertical chain centered at x = 0
+
+Nodes:
+G1: (0, 5.0)
+G2: (0, 4.0)
+G3: (0, 3.0)
+G4: (0, 2.5)
+G5: (0, 2.2)
+
+Edges:
+G1 → G2
+G2 → G3
+G3 → G4
+G4 → G5
+
+Connection:
+G5 → T1
+
+
+=====================================
+ALTERNATIVE ENTRY (BOTTOM INPUT)
+=====================================
+
+Node:
+A1: (0, -3.5)
+
+Edge:
+A1 → T5
+
+
+=====================================
+OXIDATIVE PHOSPHORYLATION (LEFT SIDE)
+=====================================
+
+Vertical chain at x = -4
+
+Nodes:
+O1: (-4, 2.0)
+O2: (-4, 1.0)
+O3: (-4, 0.0)
+O4: (-4, -1.0)
+O5: (-4, -2.0)
+
+Edges:
+O1 → O2
+O2 → O3
+O3 → O4
+O4 → O5
+
+Connections to TCA:
+T7 → O2
+T6 → O3
+
+
+=====================================
+CO-SUBSTRATES (SMALL NODES)
+=====================================
+
+Rules:
+- radius = 0.08
+- offset = 0.5 units perpendicular to reaction
+- always paired (input/output)
+
+Example placements:
+
+T2→T3:
+(1.8, 1.8)
+(2.2, 1.2)
+
+T4→T5:
+(1.8, -1.8)
+(1.2, -2.2)
+
+T6→T7:
+(-1.8, -1.8)
+(-2.2, -1.2)
+
+OxPhos:
+Attach to each edge:
+(-4.5, y ± 0.3)
+
+
+=====================================
+EDGE RULES
+=====================================
+
+Thickness:
+- default: 2
+- flux scaling: 2 → 8
+
+Arrow:
+- tip length: 0.2
+
+Curvature:
+- TCA edges may be slightly curved (optional)
+- others straight
+
+
+=====================================
+GROUP DEFINITIONS
+=====================================
+
+glycolysis:
+[G1, G2, G3, G4, G5]
+
+tca_cycle:
+[T1, T2, T3, T4, T5, T6, T7, T8]
+
+oxphos:
+[O1, O2, O3, O4, O5]
+
+alt_entry:
+[A1]
+
+upper_tca:
+[T1, T2, T3, T8]
+
+lower_tca:
+[T4, T5, T6, T7]
+
+
+=====================================
+FULL CONNECTION SUMMARY
+=====================================
+
+G1 → G2 → G3 → G4 → G5 → T1
+
+T1 → T2 → T3 → T4 → T5 → T6 → T7 → T8 → T1
+
+A1 → T5
+
+O1 → O2 → O3 → O4 → O5
+
+T7 → O2
+T6 → O3

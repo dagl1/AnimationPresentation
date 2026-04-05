@@ -1,0 +1,25 @@
+MoleculePool:
+
+Elements:
+- Text objects (A, B, etc.)
+- Spawned in random or grid layout
+
+Used for:
+- Visualizing quantities (counts)
+- AND / OR logic
+
+methods:
+spawn(gene, count):
+- create N copies of gene label
+
+bind_pairs():
+- animate pairing/grouping (AND)
+
+remain_unpaired():
+- leave excess visible
+
+accumulate():
+- cluster without binding (OR)
+
+transform_to_proteins():
+- morph letters into protein shapes

@@ -18,9 +18,10 @@ Sub-types (subclasses, to be implemented)
   PTRMissingnessPlot     – boxplots + regression, 0–29 missing tissues
   KcatDistributionPlot   – per-compartment, log10 y-axis
 """
+
 from __future__ import annotations
 
-from manim import VGroup, VMobject, Animation, AnimationGroup, Axes, YELLOW
+from manim import YELLOW, Animation, AnimationGroup, Axes, ManimColor, VGroup, VMobject
 
 from components.base import BaseComponent
 from utils.styling import DEBUG
@@ -42,23 +43,23 @@ class GraphPlot(BaseComponent):
 
     def __init__(
         self,
-        x_range:   tuple = (0, 10, 1),
-        y_range:   tuple = (0, 10, 1),
-        x_label:   str   = "",
-        y_label:   str   = "",
-        show_grid: bool  = True,
-        debug:     bool  = DEBUG,
+        x_range: tuple = (0, 10, 1),
+        y_range: tuple = (0, 10, 1),
+        x_label: str = "",
+        y_label: str = "",
+        show_grid: bool = True,
+        debug: bool = DEBUG,
         **kwargs,
     ) -> None:
-        self.x_range   = x_range
-        self.y_range   = y_range
-        self.x_label   = x_label
-        self.y_label   = y_label
+        self.x_range = x_range
+        self.y_range = y_range
+        self.x_label = x_label
+        self.y_label = y_label
         self.show_grid = show_grid
 
-        self.axes:            Axes | None    = None
-        self.data_dots:       VGroup         = VGroup()
-        self.threshold_line:  VMobject | None = None
+        self.axes: Axes | None = None
+        self.data_dots: VGroup = VGroup()
+        self.threshold_line: VMobject | None = None
 
         super().__init__(debug=debug, **kwargs)
         self._build()
@@ -73,7 +74,7 @@ class GraphPlot(BaseComponent):
 
     # ─── Public API ──────────────────────────────────────────────────────────
 
-    def show_threshold(self, y: float, color: str = YELLOW) -> VMobject:
+    def show_threshold(self, y: float, color: ManimColor = YELLOW) -> VMobject:
         """Draw a horizontal threshold line at the given y value."""
         raise NotImplementedError
 
@@ -81,9 +82,7 @@ class GraphPlot(BaseComponent):
         """Shade the area between y_min and y_max on the plot."""
         raise NotImplementedError
 
-    def animate_points(
-        self, points: list[tuple[float, float]]
-    ) -> AnimationGroup:
+    def animate_points(self, points: list[tuple[float, float]]) -> AnimationGroup:
         """Animate data points appearing one by one."""
         raise NotImplementedError
 
@@ -94,4 +93,3 @@ class GraphPlot(BaseComponent):
     def animate_curve_change(self, new_params: dict) -> Animation:
         """Smoothly morph the plotted curve when parameters change."""
         raise NotImplementedError
-

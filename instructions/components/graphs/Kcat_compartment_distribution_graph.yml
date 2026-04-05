@@ -1,0 +1,38 @@
+id: kcat_compartments
+
+type: graph_plot
+
+title: "kcat per cellular compartment"
+
+purpose: >
+  Show that kcat distributions differ slightly across compartments.
+
+axes:
+  x:
+    label: "Compartment"
+    type: categorical
+  y:
+    label: "log10(kcat)"
+    range: [0.8, 2.1]
+
+elements:
+  - type: boxplot
+    id: compartment_boxes
+    description: distribution per compartment
+
+data:
+  synthetic: true
+  description: >
+    Most compartments around 1.5 ±0.3,
+    lysosome and mitochondria around ~1.8
+
+animations:
+  - step: 1
+    action: draw_boxplots
+
+highlights:
+  - type: category
+    description: highlight lysosome and mitochondria
+
+notes: >
+  Keep differences subtle but visible.

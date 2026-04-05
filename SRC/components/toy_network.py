@@ -28,34 +28,41 @@ Usage example
     # Adjust flux thickness (normalised 0–1)
     net.set_flux_thickness({"R1": 0.8, "R2": 0.2})
 """
+
 from __future__ import annotations
 
 from typing import Optional
-import numpy as np
 
+import numpy as np
 from manim import (
-    VGroup, Circle, Arrow, Text,
-    RIGHT, DOWN, UP, LEFT,
+    DOWN,
+    RIGHT,
+    UP,
+    AnimationGroup,
+    Arrow,
+    Circle,
+    Text,
+    VGroup,
 )
 
 from components.base import BaseComponent
 from utils.styling import (
+    DEBUG,
+    FONT_SIZE_EXPRESSION,
+    FONT_SIZE_GENE_LABEL,
     GENE_COLOR,
     METABOLITE_COLOR,
-    REACTION_COLOR,
-    FONT_SIZE_GENE_LABEL,
-    FONT_SIZE_EXPRESSION,
-    STROKE_REACTION_BASE,
-    STROKE_REACTION_MAX,
     NODE_RADIUS,
     NODE_STROKE_WIDTH,
-    DEBUG,
+    REACTION_COLOR,
+    STROKE_REACTION_BASE,
+    STROKE_REACTION_MAX,
 )
 
 # ─── Internal spacing constants (relative, not absolute scene coords) ─────────
-_NODE_BUFF: float = 2.2    # gap between adjacent node centres
-_GENE_BUFF: float = 0.35   # gap between arrow and gene labels
-_EXPR_BUFF: float = 0.22   # gap between gene label and expression value
+_NODE_BUFF: float = 2.2  # gap between adjacent node centres
+_GENE_BUFF: float = 0.35  # gap between arrow and gene labels
+_EXPR_BUFF: float = 0.22  # gap between gene label and expression value
 
 
 class ToyNetwork(BaseComponent):
@@ -88,14 +95,14 @@ class ToyNetwork(BaseComponent):
         **kwargs,
     ) -> None:
         # Store config before _build() is called
-        self.n_reactions: int    = n_reactions
-        self.n_nodes:     int    = n_reactions + 1
-        self.layout:      str    = layout
+        self.n_reactions: int = n_reactions
+        self.n_nodes: int = n_reactions + 1
+        self.layout: str = layout
         self._node_labels: list[str] = node_labels or []
 
         # Named sub-groups – always accessible for external animation
-        self.nodes:  VGroup = VGroup()   # metabolite circles (+ optional label)
-        self.arrows: VGroup = VGroup()   # reaction arrows
+        self.nodes: VGroup = VGroup()  # metabolite circles (+ optional label)
+        self.arrows: VGroup = VGroup()  # reaction arrows
 
         # gene_label_groups : "R1" → VGroup of Text objects
         self.gene_label_groups: dict[str, VGroup] = {}
@@ -146,10 +153,10 @@ class ToyNetwork(BaseComponent):
             # Arrow tail / tip at the circle edges
             if self.layout == "horizontal":
                 tail = src.get_right()
-                tip  = dst.get_left()
+                tip = dst.get_left()
             else:
                 tail = src.get_bottom()
-                tip  = dst.get_top()
+                tip = dst.get_top()
 
             arrow = Arrow(
                 start=tail,
@@ -230,11 +237,40 @@ class ToyNetwork(BaseComponent):
             if idx is None or idx >= self.n_reactions:
                 continue
 
-            clamped = max(0.0, min(1.0, float(flux)))
-            stroke  = STROKE_REACTION_BASE + clamped * (
-                STROKE_REACTION_MAX - STROKE_REACTION_BASE
-            )
+            stroke = self._flux_to_stroke(flux)
             self.arrows[idx].set_stroke(width=stroke)
+
+    def animate_flux_thickness(
+        self,
+        mapping: dict,
+        run_time: float = 0.8,
+        lag_ratio: float = 0.0,
+    ) -> AnimationGroup:
+        """
+        Return a smooth transition animation for flux thickness updates.
+
+        Parameters
+        ----------
+        mapping : dict
+            { reaction_id -> flux_value } with the same key/value rules as
+            :meth:`set_flux_thickness`.
+        run_time : float
+            Duration for each arrow stroke-width transition.
+        lag_ratio : float
+            Delay ratio between successive arrow transitions.
+        """
+        transitions = []
+        for key, flux in mapping.items():
+            idx = self._resolve_idx(key)
+            if idx is None or idx >= self.n_reactions:
+                continue
+
+            stroke = self._flux_to_stroke(flux)
+            transitions.append(
+                self.arrows[idx].animate(run_time=run_time).set_stroke(width=stroke)
+            )
+
+        return AnimationGroup(*transitions, lag_ratio=lag_ratio)
 
     def show_expression(self, values: dict) -> None:
         """
@@ -328,3 +364,8 @@ class ToyNetwork(BaseComponent):
         except ValueError:
             return None
 
+    @staticmethod
+    def _flux_to_stroke(flux: float) -> float:
+        """Map a normalized flux value [0, 1] to arrow stroke width."""
+        clamped = max(0.0, min(1.0, float(flux)))
+        return STROKE_REACTION_BASE + clamped * (STROKE_REACTION_MAX - STROKE_REACTION_BASE)

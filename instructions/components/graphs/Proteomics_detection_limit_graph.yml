@@ -1,0 +1,47 @@
+id: proteomics_detection_limit
+
+type: graph_plot
+
+title: "Proteomics detection limit"
+
+purpose: >
+  Show that values below a threshold (~log2 = 9) are not detected.
+
+axes:
+  x:
+    label: ""
+    type: none
+  y:
+    label: "Abundance (log2)"
+    range: [0, 14]
+
+elements:
+  - type: scatter
+    id: points
+    description: detected and undetected proteins
+
+  - type: threshold
+    id: detection_line
+    description: horizontal cutoff at 9
+
+data:
+  synthetic: true
+  description: >
+    Dense points above 9, sparse/absent below 9
+
+animations:
+  - step: 1
+    action: create_axes
+  - step: 2
+    action: animate_points
+    target: points
+  - step: 3
+    action: draw_line
+    target: detection_line
+
+highlights:
+  - type: region
+    description: highlight entire region below threshold
+
+notes: >
+  Emphasize uncertainty of missing values (0–9 range).

@@ -1,0 +1,26 @@
+DataTable:
+
+- Max ~10–15 rows
+- ~5 columns + gene index column
+- Clean grid
+
+methods:
+highlight_rows(indices)
+highlight_columns(indices)
+
+compute_median():
+- animate above column
+
+show_ratio_to_median():
+- display normalization
+
+show_imputation(cell):
+- fill missing value with animation
+
+add_rows(rows):
+- append new entries
+
+fade_rows(indices):
+- remove visually
+- take out specific rows for fading, use utils/Utilities.py (slide right, then fade out, squishes rest of table
+together)

@@ -1,0 +1,121 @@
+BiologicalContext:
+
+Elements:
+- Person silhouette (left side)
+- Organ highlight (heart)
+- RNA molecules (floating strands)
+- Heatmap (purple/orange grid)
+
+Used for:
+- Motivation
+- Input data visualization
+
+
+Implement a "StylizedBiologicalHeart" component.
+
+GOAL:
+Create a clean, recognizable biological heart shape that is:
+- anatomically inspired (not a cartoon heart ❤️)
+- but simplified and geometric
+- consistent with a minimal scientific illustration style
+
+DO NOT:
+- use emoji-like heart shapes
+- use highly detailed anatomical drawings
+- use random curves without structure
+
+-------------------------------------
+
+STRUCTURE:
+
+The heart should be built from simple primitives:
+
+1. Main body:
+   - Use a rounded shape (preferably a parametric curve or smooth polygon)
+   - Slight asymmetry: right side (viewer’s left) slightly larger
+
+2. Top lobes (atria region):
+   - Two rounded bumps at the top
+   - Left bump slightly larger than right
+   - These should NOT form a perfect symmetric heart shape
+
+3. Bottom tip:
+   - Taper to a soft point (not sharp)
+   - Slightly tilted to the right (~10–15 degrees)
+
+4. Overall proportions:
+   - Height > width (ratio ~1.2 : 1)
+   - Slight tilt to the right (whole shape rotated ~10°)
+
+-------------------------------------
+
+COLOR & STYLE:
+
+- Fill color: soft red (e.g. RED_E or slightly desaturated)
+- Stroke:
+    - color: WHITE
+    - width: 2–3
+- No gradients
+- No texture
+- Flat design only
+
+-------------------------------------
+
+MANIM IMPLEMENTATION APPROACH:
+
+Preferred:
+- Use VMobject with set_points_smoothly()
+- Define ~12–16 control points around the shape
+
+Alternative:
+- Combine:
+    - 2 Circles (top lobes)
+    - 1 Polygon (bottom taper)
+    - then union them (if using boolean ops)
+
+-------------------------------------
+
+ANCHOR POINTS (GUIDE COORDINATES):
+
+Use this as a base shape before scaling:
+
+Top left lobe:     (-0.6, 0.6)
+Top right lobe:    (0.4, 0.7)
+
+Upper mid:         (0.0, 0.9)
+
+Left side:         (-0.9, 0.0)
+Right side:        (0.7, -0.1)
+
+Bottom tip:        (0.1, -1.2)
+
+Close shape smoothly back to start
+
+-------------------------------------
+
+BEHAVIOR METHODS:
+
+The component must support:
+
+- scale_to_fit(height=...)
+- move_to(position)
+- get_highlight_region()  # returns a copy for glow effect
+
+-------------------------------------
+
+USAGE IN SCENE:
+
+- Appears inside a human silhouette
+- Can be:
+    - highlighted (yellow glow)
+    - extracted and moved
+    - transformed into another object (e.g. question mark)
+
+-------------------------------------
+
+IMPORTANT:
+
+The heart must:
+- look clearly biological (not symbolic)
+- remain simple enough to animate cleanly
+- be a single VGroup or VMobject (not many loose parts)

@@ -1,9 +1,10 @@
 [project]
-name = "pagoza"
+name = "AnimationPresentation"
 dynamic = ["version"]
 description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.14"
+
 dependencies = [
     "black>=25.12.0",
     "commitizen>=4.11.0",
@@ -11,11 +12,14 @@ dependencies = [
     "dash-bootstrap-components>=2.0.4",
     "dash-mantine-components>=2.6.0",
     "gunicorn>=25.1.0",
+    "ipython>=9.12.0",
     "isort>=7.0.0",
+    "manim>=0.20.1",
     "mypy>=1.19.1",
     "myst-parser>=5.0.0",
     "nbsphinx>=0.9.8",
     "numpy>=2.4.3",
+    "pandas>=3.0.2",
     "pre-commit>=4.5.1",
     "pytest>=9.0.2",
     "python-semantic-release>=10.5.3",
@@ -25,6 +29,7 @@ dependencies = [
     "sphinx-copybutton>=0.5.2",
     "sphinx-rtd-theme>=3.1.0",
     "ty>=0.0.8",
+    "uv>=0.11.3",
 ]
 
 [build-system]
@@ -33,7 +38,7 @@ build-backend = "setuptools.build_meta"
 
 [tool.setuptools.packages.find]
 where = ["src"]
-include = ["PAGOZA*"]
+include = ["AnimationPresentation*"]
 
 [tool.setuptools]
 package-dir = {"" = "src"}
@@ -41,7 +46,7 @@ include-package-data = true
 zip-safe = false
 
 [tool.setuptools.package-data]
-PAGOZA = ["py.typed"]
+AnimationPresentation = ["py.typed"]
 
 [tool.setuptools_scm]
 version_scheme = "post-release"

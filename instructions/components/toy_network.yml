@@ -1,0 +1,41 @@
+ToyNetwork:
+
+Structure:
+- N reactions (edges with arrows)
+- Metabolites: white circular nodes at ends of edges
+- Layout:
+    - horizontal (default)
+    - vertical (optional)
+    - parallel pathways (optional)
+
+Gene Placement:
+- White letter labels ABOVE each reaction
+- Multiple genes arranged horizontally above edge
+
+No proteins shown by default (only genes)
+
+Methods:
+add_gene_labels(mapping):
+- mapping: reaction_id → list of genes
+- places gene letters above each reaction
+
+show_expression(values):
+- values: dict gene → numeric value
+- display numbers above gene labels
+
+animate_and_binding():
+- spawn floating gene letters
+- animate pairing/grouping into complexes
+- leftover elements remain visible
+
+animate_or_sum():
+- spawn floating gene letters
+- no binding
+- visually accumulate or cluster
+
+duplicate_layout(vertical=True):
+- duplicate entire network
+- reposition below or beside original
+
+transform_to(new_layout):
+- smooth morph between layouts

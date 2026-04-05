@@ -23,3 +23,23 @@ Complexity:
 Transitions:
 - Prefer morphing (Transform)
 - Use slide-out for tables/genes
+
+- ALWAYS reuse objects (Transform > FadeOut/FadeIn)
+- Keep metabolic model persistent until Step 5
+- Toy networks must be identical copies (use duplicate)
+
+- Arrow colors:
+   ↑ = orange
+   ↓ = purple
+
+- Highlight:
+   ONLY yellow glow (never change object color)
+
+- Flux:
+   encoded ONLY via line thickness
+
+- Scene pacing:
+   ~8–10 seconds per major step
+
+- Avoid clutter:
+   max 3 simultaneous animations

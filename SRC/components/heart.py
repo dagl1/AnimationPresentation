@@ -1,75 +1,83 @@
 """
-heart.py – Stylistic heart shape.
+heart.py – Simple cartoon heart shape.
 
-A minimalist heart for biological context visualization.
+A smooth classic red cartoon heart, built from a parametric curve.
 """
 
 from __future__ import annotations
 
 import numpy as np
 from manim import (
-    Bezier,
-    ParametricFunction,
+    Polygon,
     VGroup,
 )
 
-from components.base import BaseComponent
 from utils.styling import (
     DEBUG,
-    METABOLITE_COLOR,
-    NODE_STROKE_WIDTH,
 )
 
 
-class Heart(BaseComponent):
+class Heart(VGroup):
     """
-    Stylistic heart shape using parametric curves.
+    Smooth cartoon heart icon.
 
-    Draws a smooth heart shape using Bezier curves.
+    Built as a single filled polygon sampled from a heart curve,
+    so it reads visually as a proper stylized heart (not blobs + diamond).
     """
 
     def __init__(
         self,
-        height: float = 1.0,
+        size: float = 1.0,
         debug: bool = DEBUG,
         **kwargs,
     ) -> None:
-        self.height = height
-        self.scale_factor = height / 2.0  # Normalize to height 2.0
+        self.heart_size = size
+        self.debug = debug
 
-        super().__init__(debug=debug, **kwargs)
+        super().__init__(**kwargs)
         self._build()
-        if debug:
-            self._add_debug_overlays()
 
     # ─── Build ───────────────────────────────────────────────────────────────
 
     def _build(self) -> None:
-        """Build heart shape using parametric function."""
-        # Heart parametric function
-        # x(t) = 16 sin³(t)
-        # y(t) = 13 cos(t) - 5 cos(2t) - 2 cos(3t) - cos(4t)
-        # Normalized to fit in a reasonable size
+        """Build a smooth cartoon heart from a parametric curve."""
+        s = self.heart_size
 
-        def heart_curve(t):
-            """Parametric heart curve."""
-            x = 16 * np.sin(t) ** 3
-            y = 13 * np.cos(t) - 5 * np.cos(2 * t) - 2 * np.cos(3 * t) - np.cos(4 * t)
-            # Normalize to fit height
-            return np.array([x / 32 * self.scale_factor, y / 32 * self.scale_factor, 0])
+        fill_color = "#FF4D6D"
+        stroke_color = "#C62828"
 
-        # Create the heart using parametric function
-        heart = ParametricFunction(
-            heart_curve,
-            t_range=[0, 2 * np.pi, 0.01],
-            color=METABOLITE_COLOR,
-            stroke_width=NODE_STROKE_WIDTH,
+        # Classic heart parametric curve.
+        # We normalize and scale to keep the component size predictable.
+        t_values = np.linspace(0.0, 2.0 * np.pi, 120, endpoint=False)
+        points = []
+        for t in t_values:
+            x = 16.0 * (np.sin(t) ** 3)
+            y = (
+                13.0 * np.cos(t)
+                - 5.0 * np.cos(2.0 * t)
+                - 2.0 * np.cos(3.0 * t)
+                - np.cos(4.0 * t)
+            )
+            # Normalize to roughly unit heart and then scale by s
+            # (32 and 34 chosen for balanced width/height in scene)
+            px = (x / 32.0) * s
+            py = (y / 34.0) * s
+            points.append(np.array([px, py, 0.0]))
+
+        heart_shape = Polygon(
+            *points,
+            color=stroke_color,
+            fill_color=fill_color,
+            fill_opacity=1.0,
+            stroke_width=1.8,
         )
 
-        self.add(heart)
+        self.add(heart_shape)
 
-    # ─── Internal helpers ────────────────────────────────────────────────────
+    # ─── Public API ──────────────────────────────────────────────────────────
 
-    def _add_debug_overlays(self) -> None:
-        """Add bounding boxes and labels for debugging."""
-        super()._add_debug_overlays()
+    def get_highlight_region(self) -> "Heart":
+        """Return a copy of the heart for highlight/glow effect."""
+        copy = Heart(size=self.heart_size, debug=False)
+        copy.set_opacity(0.0)
+        return copy

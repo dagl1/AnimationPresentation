@@ -1,0 +1,34 @@
+IFCSystem:
+
+Input:
+- Table of GPR rules
+
+Process:
+1. Extract all GPRs
+2. Expand OR into combinations
+3. Reduce to AND-only forms
+
+Example:
+(A OR B) AND (C OR D)
+→ AC, AD, BC, BD
+
+Representation:
+- Each IFC is a grouped object:
+    - constituent genes
+    - label (e.g. "AC")
+    - subtle outline (optional)
+
+
+ Methods:
+ expand_gprs():
+- animate transformation:
+    boolean → combinations
+
+remove_duplicates():
+- visually collapse identical IFCs
+
+show_ifcs():
+- display grouped gene combinations
+
+link_to_reactions():
+- show which IFC maps to which reaction

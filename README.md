@@ -1,12 +1,12 @@
-<h2>PAGOZA Status</h2>
+<h2>AnimationPresentation Status</h2>
 
-[![Build Status](https://github.com/dagl1/PAGOZA/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/dagl1/PAGOZA/actions)
-[![Docs Status](https://readthedocs.org/projects/pagoza/badge/?version=latest)](https://pagoza.readthedocs.io)
-[![Demo Status](https://img.shields.io/website?down_color=red&down_message=offline&label=Render&style=flat&up_color=brightgreen&up_message=online&url=https%3A%2F%2Fpagoza.onrender.com)](https://pagoza.onrender.com)
+[![Build Status](https://github.com/dagl1/AnimationPresentation/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/dagl1/AnimationPresentation/actions)
+[![Docs Status](https://readthedocs.org/projects/AnimationPresentation/badge/?version=latest)](https://AnimationPresentation.readthedocs.io)
+[![Demo Status](https://img.shields.io/website?down_color=red&down_message=offline&label=Render&style=flat&up_color=brightgreen&up_message=online&url=https%3A%2F%2FAnimationPresentation.onrender.com)](https://AnimationPresentation.onrender.com)
 
 <p>
-  <a href="https://pagoza.readthedocs.io">Docs</a> |
-  <a href="https://pagoza.onrender.com/">Live Demo</a>
+  <a href="https://AnimationPresentation.readthedocs.io">Docs</a> |
+  <a href="https://AnimationPresentation.onrender.com/">Live Demo</a>
 </p>
 
 
@@ -41,9 +41,9 @@ Required actions:
     - Any additional scopes, eg. workflows
   - Generate the token and copy it securely.
   - Set the token as an environment variable in your terminal:
-    - On macOS/Linux: `export PAGOZA_GITHUB_TOKEN=your_token_here`
-    - On Windows (Command Prompt): `set PAGOZA_GITHUB_TOKEN=your_token_here`
-    - On Windows (PowerShell): `$env:PAGOZA_GITHUB_TOKEN="your_token_here"`
+    - On macOS/Linux: `export AnimationPresentation_GITHUB_TOKEN=your_token_here`
+    - On Windows (Command Prompt): `set AnimationPresentation_GITHUB_TOKEN=your_token_here`
+    - On Windows (PowerShell): `$env:AnimationPresentation_GITHUB_TOKEN="your_token_here"`
 
 
 - Clone the repository:

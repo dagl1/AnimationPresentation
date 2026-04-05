@@ -8,15 +8,16 @@ Every component must:
   4. Use relative positioning only (next_to / align_to / arrange)
   5. Optionally call _add_debug_overlays() at the end of __init__
 """
+
 from __future__ import annotations
 
 import numpy as np
-from manim import VGroup, Mobject, Circle, Dot, Text, SurroundingRectangle, RIGHT, UP, DOWN
+from manim import DOWN, RIGHT, UP, Circle, Dot, Mobject, SurroundingRectangle, Text, VGroup
 
 from utils.styling import (
     DEBUG,
-    DEBUG_BOX_COLOR,
     DEBUG_ANCHOR_COLOR,
+    DEBUG_BOX_COLOR,
     DEBUG_FONT_SIZE,
 )
 
@@ -45,9 +46,7 @@ class BaseComponent(VGroup):
         Construct all child mobjects and add them with self.add().
         Must be called at the end of each subclass __init__.
         """
-        raise NotImplementedError(
-            f"{self.__class__.__name__} must implement _build()"
-        )
+        raise NotImplementedError(f"{self.__class__.__name__} must implement _build()")
 
     # ─── Debug overlay ───────────────────────────────────────────────────────
 
@@ -114,4 +113,3 @@ class BaseComponent(VGroup):
         """Move this component to the scene origin."""
         self.move_to(np.array([0.0, 0.0, 0.0]))
         return self
-

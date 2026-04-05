@@ -27,7 +27,8 @@ style:
 # the window on the monitor, e.g. "960,540"
 window_position: UR
 window_monitor: 0
-full_screen: False
+window_size: "1920,1080"
+full_screen: True
 file_writer_config:
   # If break_into_partial_movies is set to True, then many small
   # files will be written corresponding to each Scene.play and

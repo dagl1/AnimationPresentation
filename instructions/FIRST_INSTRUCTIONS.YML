@@ -1,0 +1,86 @@
+You are building a reusable animation system in Manim.
+
+DO NOT write one-off scene code.
+
+Instead:
+- Build reusable components (ToyNetwork, MetabolicModel, etc.)
+- Each component must be modular and configurable
+- Animations must be methods, not hardcoded sequences
+
+All visuals must follow a strict global style guide.
+
+Prefer:
+- Transform() over FadeOut/FadeIn
+- Object reuse over recreation
+
+All positioning must use relative layout (next_to, align_to), never hardcoded coordinates unless unavoidable.
+
+Checkout #file:instructions and its files, it containsboth the full_video, a draft with story, animation rules, explanations of components and scenes. Use those to start working on this. If necessary ask any questions before working
+
+Use this structure:
+
+/components
+  toy_network.py
+  metabolic_model.py
+  graph_plot.py
+  ...
+
+/scenes
+  scene_01.py
+  scene_02.py
+
+/utils
+  layout.py
+  animations.py
+  styling.py
+
+DO NOT:
+- Hardcode positions like .shift(LEFT*3.2)
+- Recreate objects that already exist
+- Mix styling logic into scene code
+- Use random colors
+
+DO:
+- Use consistent color mapping
+- Keep animations small and composable
+- Name all objects clearly
+
+When I give feedback:
+- Only change the requested part
+- Do not refactor unrelated code
+- Do not rename things unless asked
+
+Add a debug mode to components:
+- Show bounding boxes
+- Show anchor points
+- Label key objects
+
+Toggle via flag: DEBUG = True
+
+Implement these base classes:
+
+- BaseComponent (handles grouping, positioning)
+- ToyNetwork
+- MetabolicModel
+- MoleculePool
+- GraphPlot
+- DataTable
+- EquationBlock
+
+Each class must:
+- Inherit from VGroup or similar
+- Have a constructor for structure
+- Have animation methods (e.g. animate_and_binding)
+
+DO NOT implement scenes yet.
+
+Implement ToyNetwork with:
+
+- 3 nodes, 2 reactions
+- Gene labels above reactions
+- Method: add_gene_labels
+- Method: set_flux_thickness
+
+No animations yet.
+
+I will run from start.py

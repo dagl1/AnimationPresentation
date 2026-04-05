@@ -1,0 +1,23 @@
+GraphPlot:
+
+- Faint gridlines
+- Clean axes
+- No unnecessary ticks
+- Mostly positive ranges
+- Smooth animations
+
+methods:
+show_threshold(y=value)
+highlight_region(area)
+animate_points()
+add_regression_line()
+animate_curve_change(parameters)
+
+required_subtypes:
+PTR_variance_plot
+Detection_limit_plot
+RNA_half_life_plot
+RNA_turnover_plot (with equation interaction)
+Protein_turnover_plot
+PTR_missingness_plot (boxplots + regression)
+Kcat_distribution_plot (per compartment)

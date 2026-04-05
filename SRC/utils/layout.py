@@ -4,10 +4,11 @@ layout.py – Relative layout helpers.
 All positioning must go through these helpers.
 Never use hardcoded shift(LEFT * 3.2) in component or scene code.
 """
+
 from __future__ import annotations
 
 import numpy as np
-from manim import Mobject, VGroup, RIGHT, UP, DOWN, LEFT, ORIGIN
+from manim import DOWN, LEFT, ORIGIN, RIGHT, UP, Mobject, VGroup
 
 
 def arrange_above(
@@ -17,7 +18,7 @@ def arrange_above(
 ) -> Mobject:
     """Centre `label` directly above `target`."""
     label.next_to(target, UP, buff=buff)
-    label.align_to(target, direction=ORIGIN)   # centre-align horizontally
+    label.align_to(target, direction=ORIGIN)  # centre-align horizontally
     return label
 
 
@@ -81,4 +82,3 @@ def distribute_evenly(
     start = items[0].get_center().copy()
     for i, mob in enumerate(items):
         mob.move_to(start + direction * step * i)
-

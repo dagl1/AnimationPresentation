@@ -1,0 +1,16 @@
+EquationBlock:
+
+- Center-stage LaTeX
+- Large readable format
+
+methods:
+render_latex(equation)
+
+highlight_term(term):
+- yellow highlight
+
+annotate(term, text):
+- label next to term
+
+focus_on(term):
+- dim others, emphasize one part

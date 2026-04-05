@@ -1,0 +1,161 @@
+SCENE_1:
+
+Goal:
+- Introduce the biological question: how do we infer metabolic activity from gene expression?
+- Show two major modeling approaches (iMAT, eFlux)
+- Establish the key assumption: expression → activity
+- End by motivating GPR rules
+
+Components Used:
+- BiologicalContext
+- MetabolicModel
+- ToyNetwork (x2)
+- EquationBlock (for labels like "iMAT", "eFlux")
+- Text (question mark, labels, references)
+
+Scene Flow:
+  Step 1:
+    Create:
+      - Person silhouette (left side)
+      - Heart shape inside (highlighted)
+
+    Animation:
+    1. FadeIn(person)
+    2. Draw/Glow(heart)
+
+    Transformation:
+    3. Extract heart (Transform → move right)
+    4. Morph heart → question mark (Transform)
+
+    Add:
+    5. Text "Metabolism" above question mark
+
+  Step 2:
+    Create:
+      - MetabolicModel (center-right)
+
+    Animation:
+    1. FadeIn(metabolic_model)
+
+    Cleanup:
+    2. FadeOut(person)
+
+    Layout shift:
+    3. Move(metabolic_model + question_mark → left side)
+
+  Step 3:
+    Create:
+      - Text "iMAT"
+      - Reference text "(Shlomi et al. 2008)" (bottom-left)
+
+    Animation:
+    1. FadeIn("iMAT")
+    2. FadeIn(reference)
+
+    Expression overlay:
+    3. Add H (orange ↑) and L (purple ↓) to reactions
+    - Bias: more L in glycolysis
+
+    Constraint visualization:
+    4. FadeOut:
+      - glycolysis pathway
+      - upper TCA cycle
+
+    Recovery:
+    5. FadeIn those pathways again
+    6. Remove H/L labels
+
+  Step 4:
+    Create:
+      - Text "eFlux"
+      - Reference "(Colijn et al. 2009)" below iMAT reference
+
+    Animation:
+    1. FadeIn("eFlux")
+
+    Overlay:
+    2. Add up/down arrows to reactions:
+      - orange (up)
+      - purple (down)
+
+    IMPORTANT:
+      - Do NOT remove reactions
+      - Only modulate visually
+
+    Cleanup:
+    3. Remove arrows
+
+  Step 5:
+    Layout shift:
+    1. Move:
+      - metabolic_model
+      - iMAT/eFlux text
+      → to right side (where question mark was)
+
+    Cleanup:
+    2. Remove references
+
+  Step 6:
+    Create:
+      - ToyNetwork_1 (top): 3 nodes, 2 reactions
+      - ToyNetwork_2 (bottom): identical layout
+
+    Add:
+      - Above reactions:
+          Top: (20, 20)
+          Bottom: (200, 200)
+
+    Animation:
+    1. FadeIn(top network)
+    2. FadeIn(bottom network)
+
+    Flux encoding:
+    3. Increase edge thickness:
+      - bottom network thicker than top
+
+    Question:
+    4. Add two diagonal arrows pointing to both networks
+    5. Create central question mark
+    6. Highlight(question mark, yellow glow)
+
+  Step 7:
+    Modify bottom network:
+
+    1. Remove (200, 200)
+    2. Reset edge thickness
+
+    3. Add:
+      (20, 0)
+
+    4. Second reaction:
+      - Make line extremely thin
+      - Add red X on edge
+
+    Meaning:
+      - Broken pathway
+      - No flux possible
+
+    Animation:
+      - Transform existing objects (no recreation)
+
+  Step 8:
+    Create:
+      - Text: "Gene-Protein-Reaction (GPR) rules"
+
+    Animation:
+    1. FadeIn(text, center)
+
+    End state:
+      - Keep toy network visible
+      - Focus shifts to text
+
+
+
+
+
+
+
+
+
+
+

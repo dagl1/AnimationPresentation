@@ -1,0 +1,8 @@
+# This file is used internally by FFMPEG.
+file 'file:E:/Git/AnimationPresentation/media/videos/scene_01/480p15/partial_movie_files/MetabolicModelDebug/1584795214_3506589752_1611193495.mp4'
+file 'file:E:/Git/AnimationPresentation/media/videos/scene_01/480p15/partial_movie_files/MetabolicModelDebug/4072820271_868219351_3397154484.mp4'
+file 'file:E:/Git/AnimationPresentation/media/videos/scene_01/480p15/partial_movie_files/MetabolicModelDebug/4072820271_2241165036_2856371493.mp4'
+file 'file:E:/Git/AnimationPresentation/media/videos/scene_01/480p15/partial_movie_files/MetabolicModelDebug/4072820271_3506589752_2374454143.mp4'
+file 'file:E:/Git/AnimationPresentation/media/videos/scene_01/480p15/partial_movie_files/MetabolicModelDebug/4072820271_4153413508_1807426748.mp4'
+file 'file:E:/Git/AnimationPresentation/media/videos/scene_01/480p15/partial_movie_files/MetabolicModelDebug/4072820271_3506589752_3684271474.mp4'
+file 'file:E:/Git/AnimationPresentation/media/videos/scene_01/480p15/partial_movie_files/MetabolicModelDebug/4072820271_3591496718_1243582911.mp4'

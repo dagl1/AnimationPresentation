@@ -1,0 +1,52 @@
+id: rna_half_life
+
+type: graph_plot
+
+title: "RNA steady-state and turnover"
+
+purpose: >
+  Illustrate how RNA production and degradation lead to steady-state levels.
+
+axes:
+  x:
+    label: "Time"
+    type: linear
+  y:
+    label: "Concentration (%)"
+    range: [0, 120]
+
+elements:
+  - type: line
+    id: old_rna
+    description: decaying RNA
+
+  - type: line
+    id: new_rna
+    description: increasing RNA
+
+  - type: line
+    id: total_rna
+    description: constant total at ~100%
+
+data:
+  synthetic: true
+  description: >
+    old decreases, new increases, total stays flat at 100
+
+animations:
+  - step: 1
+    action: draw_line
+    target: total_rna
+  - step: 2
+    action: draw_line
+    target: old_rna
+  - step: 3
+    action: draw_line
+    target: new_rna
+
+highlights:
+  - type: point
+    description: intersection point (half-life)
+
+notes: >
+  Clearly show total RNA remains constant.

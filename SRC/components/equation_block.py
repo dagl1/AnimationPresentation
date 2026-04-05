@@ -7,12 +7,13 @@ Style
   Centre-stage, large readable font.
   Emphasis = yellow glow on term (never change equation color).
 """
+
 from __future__ import annotations
 
-from manim import VGroup, VMobject, Animation, AnimationGroup, MathTex, Text
+from manim import Animation, AnimationGroup, ManimColor, MathTex, VGroup
 
 from components.base import BaseComponent
-from utils.styling import DEBUG, HIGHLIGHT_COLOR, FONT_SIZE_EQUATION
+from utils.styling import DEBUG, FONT_SIZE_EQUATION, HIGHLIGHT_COLOR
 
 
 class EquationBlock(BaseComponent):
@@ -36,12 +37,12 @@ class EquationBlock(BaseComponent):
 
     def __init__(
         self,
-        latex:     str  = "",
-        font_size: int  = FONT_SIZE_EQUATION,
-        debug:     bool = DEBUG,
+        latex: str = "",
+        font_size: int = FONT_SIZE_EQUATION,
+        debug: bool = DEBUG,
         **kwargs,
     ) -> None:
-        self.latex     = latex
+        self.latex = latex
         self.font_size = font_size
         self.equation: MathTex | None = None
 
@@ -71,14 +72,14 @@ class EquationBlock(BaseComponent):
         """
         if self.equation is not None:
             self.remove(self.equation)
-        self.latex    = latex
+        self.latex = latex
         self.equation = MathTex(latex, font_size=self.font_size)
         self.add(self.equation)
 
     def highlight_term(
         self,
         term_index: int,
-        color: str = HIGHLIGHT_COLOR,
+        color: ManimColor = HIGHLIGHT_COLOR,
     ) -> Animation:
         """
         Yellow-glow a submobject of the equation by index.
@@ -110,4 +111,3 @@ class EquationBlock(BaseComponent):
         Dim all other terms, emphasise the target term with a yellow glow.
         """
         raise NotImplementedError
-

@@ -1,5 +1,5 @@
-from manimlib import *
 import numpy as np
+from manim import *
 
 # To watch one of these scenes, run the following:
 # manimgl example_scenes.py OpeningManimExample
@@ -25,18 +25,13 @@ class OpeningManimExample(Scene):
         grid = NumberPlane((-10, 10), (-5, 5))
         matrix = [[1, 1], [0, 1]]
         linear_transform_words = VGroup(
-            Text("This is what the matrix"),
-            IntegerMatrix(matrix),
-            Text("looks like")
+            Text("This is what the matrix"), IntegerMatrix(matrix), Text("looks like")
         )
         linear_transform_words.arrange(RIGHT)
         linear_transform_words.to_edge(UP)
         linear_transform_words.set_backstroke(width=5)
 
-        self.play(
-            ShowCreation(grid),
-            FadeTransform(intro_words, linear_transform_words)
-        )
+        self.play(ShowCreation(grid), FadeTransform(intro_words, linear_transform_words))
         self.wait()
         self.play(grid.animate.apply_matrix(matrix), run_time=3)
         self.wait()
@@ -101,11 +96,7 @@ class AnimatingMethods(Scene):
         # which takes in functions form R^3 to R^3
         self.play(
             grid.animate.apply_function(
-                lambda p: [
-                    p[0] + 0.5 * math.sin(p[1]),
-                    p[1] + 0.5 * math.sin(p[0]),
-                    p[2]
-                ]
+                lambda p: [p[0] + 0.5 * math.sin(p[1]), p[1] + 0.5 * math.sin(p[0]), p[2]]
             ),
             run_time=5,
         )
@@ -122,9 +113,10 @@ class TextExample(Scene):
             The most important difference between Text and TexText is that\n
             you can change the font more easily, but can't use the LaTeX grammar
             """,
-            font="Arial", font_size=24,
+            font="Arial",
+            font_size=24,
             # t2c is a dict that you can choose color for different text
-            t2c={"Text": BLUE, "TexText": BLUE, "LaTeX": ORANGE}
+            t2c={"Text": BLUE, "TexText": BLUE, "LaTeX": ORANGE},
         )
         VGroup(text, difference).arrange(DOWN, buff=1)
         self.play(Write(text))
@@ -135,7 +127,7 @@ class TextExample(Scene):
             "And you can also set the font according to different words",
             font="Arial",
             t2f={"font": "Consolas", "words": "Consolas"},
-            t2c={"font": BLUE, "words": GREEN}
+            t2c={"font": BLUE, "words": GREEN},
         )
         fonts.set_width(FRAME_WIDTH - 1)
         slant = Text(
@@ -143,7 +135,7 @@ class TextExample(Scene):
             font="Consolas",
             t2s={"slant": ITALIC},
             t2w={"weight": BOLD},
-            t2c={"slant": ORANGE, "weight": RED}
+            t2c={"slant": ORANGE, "weight": RED},
         )
         VGroup(fonts, slant).arrange(DOWN, buff=0.8)
         self.play(FadeOut(text), FadeOut(difference, shift=DOWN))
@@ -179,7 +171,8 @@ class TexTransformExample(Scene):
         # rearranging an equation
         self.play(
             TransformMatchingStrings(
-                lines[0].copy(), lines[1],
+                lines[0].copy(),
+                lines[1],
                 # matched_keys specifies which substring should
                 # line up. If it's not specified, the animation
                 # will align the longest matching substrings.
@@ -194,14 +187,12 @@ class TexTransformExample(Scene):
             ),
         )
         self.wait()
-        self.play(TransformMatchingStrings(
-            lines[1].copy(), lines[2],
-            matched_keys=["A^2"]
-        ))
+        self.play(TransformMatchingStrings(lines[1].copy(), lines[2], matched_keys=["A^2"]))
         self.wait()
         self.play(
             TransformMatchingStrings(
-                lines[2].copy(), lines[3],
+                lines[2].copy(),
+                lines[3],
                 key_map={"2": R"\sqrt"},
                 path_arc=-30 * DEGREES,
             ),
@@ -235,12 +226,14 @@ class TexIndexing(Scene):
         self.wait()
         self.play(Indicate(equation[R"\pi"]))
         self.wait()
-        self.play(TransformFromCopy(
-            equation[R"e^{\pi i}"].copy().set_opacity(0.5),
-            equation["-1"],
-            path_arc=-PI / 2,
-            run_time=3
-        ))
+        self.play(
+            TransformFromCopy(
+                equation[R"e^{\pi i}"].copy().set_opacity(0.5),
+                equation["-1"],
+                path_arc=-PI / 2,
+                run_time=3,
+            )
+        )
         self.play(FadeOut(equation))
 
         # Or regular expressions
@@ -251,7 +244,7 @@ class TexIndexing(Scene):
             self.play(FlashAround(part))
         self.wait()
         self.play(FadeOut(equation))
-        
+
         # Indexing by substrings like this may not work when
         # the order in which Latex draws symbols does not match
         # the order in which they show up in the string.
@@ -270,7 +263,7 @@ class TexIndexing(Scene):
             R"\sum_{n = 1}^\infty {1 \over n^2} = {\pi^2 \over 6}",
             # Explicitly mark "\infty" as a substring you might want to access
             isolate=[R"\infty"],
-            font_size=72
+            font_size=72,
         )
         self.play(FadeIn(equation))
         self.play(equation[R"\infty"].animate.set_color(RED))  # Got it!
@@ -320,10 +313,7 @@ class UpdatersExample(Scene):
             run_time=3,
         )
         self.wait()
-        self.play(
-            square.animate.set_width(2),
-            run_time=3
-        )
+        self.play(square.animate.set_width(2), run_time=3)
         self.wait()
 
         # In general, you can alway call Mobject.add_updater, and pass in
@@ -332,9 +322,7 @@ class UpdatersExample(Scene):
         # the mobject and the amount of time since the last frame.
         now = self.time
         w0 = square.get_width()
-        square.add_updater(
-            lambda m: m.set_width(w0 * math.sin(self.time - now) + w0)
-        )
+        square.add_updater(lambda m: m.set_width(w0 * math.sin(self.time - now) + w0))
         self.wait(4 * PI)
 
 
@@ -360,7 +348,7 @@ class CoordinateSystemExample(Scene):
             # of them, like this.
             y_axis_config=dict(
                 big_tick_numbers=[-2, 2],
-            )
+            ),
         )
         # Keyword arguments of add_coordinate_labels can be used to
         # configure the DecimalNumber mobjects which it creates and
@@ -471,11 +459,7 @@ class GraphExample(Scene):
 
         parabola = axes.get_graph(lambda x: 0.25 * x**2)
         parabola.set_stroke(BLUE)
-        self.play(
-            FadeOut(step_graph),
-            FadeOut(step_label),
-            ShowCreation(parabola)
-        )
+        self.play(FadeOut(step_graph), FadeOut(step_label), ShowCreation(parabola))
         self.wait()
 
         # You can use axes.input_to_graph_point, abbreviated
@@ -514,16 +498,18 @@ class TexAndNumbersExample(Scene):
         tex.next_to(axes, UP, buff=0.5)
         value = tex.make_number_changeable("4.00")
 
-
         # This will tie the right hand side of our equation to
         # the square of the radius of the circle
-        value.add_updater(lambda v: v.set_value(circle.get_radius()**2))
+        value.add_updater(lambda v: v.set_value(circle.get_radius() ** 2))
         self.add(tex)
 
-        text = Text("""
+        text = Text(
+            """
             You can manipulate numbers
             in Tex mobjects
-        """, font_size=30)
+        """,
+            font_size=30,
+        )
         text.next_to(tex, RIGHT, buff=1.5)
         arrow = Arrow(text, tex)
         self.add(text, arrow)
@@ -539,11 +525,8 @@ class TexAndNumbersExample(Scene):
         # returns a group of the results
         exponents = tex.make_number_changeable("2", replace_all=True)
         self.play(
-            LaggedStartMap(
-                FlashAround, exponents,
-                lag_ratio=0.2, buff=0.1, color=RED
-            ),
-            exponents.animate.set_color(RED)
+            LaggedStartMap(FlashAround, exponents, lag_ratio=0.2, buff=0.1, color=RED),
+            exponents.animate.set_color(RED),
         )
 
         def func(x, y):
@@ -608,17 +591,14 @@ class SurfaceExample(ThreeDScene):
         for mob in surfaces[1:]:
             mob.rotate(PI / 2)
 
-        self.play(
-            Transform(surface, surfaces[1]),
-            run_time=3
-        )
+        self.play(Transform(surface, surfaces[1]), run_time=3)
 
         self.play(
             Transform(surface, surfaces[2]),
             # Move camera frame during the transition
             self.frame.animate.increment_phi(-10 * DEGREES),
             self.frame.animate.increment_theta(-20 * DEGREES),
-            run_time=3
+            run_time=3,
         )
         # Add ambient rotation
         self.frame.add_updater(lambda m, dt: m.increment_theta(-0.1 * dt))
@@ -699,9 +679,14 @@ class ControlsExample(Scene):
         self.checkbox = Checkbox()
         self.color_picker = ColorSliders()
         self.panel = ControlPanel(
-            Text("Text", font_size=24), self.textbox, Line(),
-            Text("Show/Hide Text", font_size=24), self.checkbox, Line(),
-            Text("Color of Text", font_size=24), self.color_picker
+            Text("Text", font_size=24),
+            self.textbox,
+            Line(),
+            Text("Show/Hide Text", font_size=24),
+            self.checkbox,
+            Line(),
+            Text("Color of Text", font_size=24),
+            self.color_picker,
         )
         self.add(self.panel)
 
@@ -709,14 +694,14 @@ class ControlsExample(Scene):
         text = Text("text", font_size=96)
 
         def text_updater(old_text):
-            assert(isinstance(old_text, Text))
+            assert isinstance(old_text, Text)
             new_text = Text(self.textbox.get_value(), font_size=old_text.font_size)
             # new_text.align_data_and_family(old_text)
             new_text.move_to(old_text)
             if self.checkbox.get_value():
                 new_text.set_fill(
                     color=self.color_picker.get_picked_color(),
-                    opacity=self.color_picker.get_picked_opacity()
+                    opacity=self.color_picker.get_picked_opacity(),
                 )
             else:
                 new_text.set_opacity(0)

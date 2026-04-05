@@ -12,12 +12,13 @@ Protein shapes (for transform_to_proteins)
   Shape B – single larger rectangle     (PROTEIN_SHAPE_B_COLOR, blue)
   Shape C – triangle / wedge            (PROTEIN_SHAPE_C_COLOR, orange)
 """
+
 from __future__ import annotations
 
-from manim import VGroup, Animation, AnimationGroup
+from manim import AnimationGroup, VGroup
 
 from components.base import BaseComponent
-from utils.styling import DEBUG, GENE_COLOR, FONT_SIZE_GENE_LABEL
+from utils.styling import DEBUG
 
 
 class MoleculePool(BaseComponent):
@@ -41,14 +42,14 @@ class MoleculePool(BaseComponent):
     # ─── Build ───────────────────────────────────────────────────────────────
 
     def _build(self) -> None:
-        pass   # pool is populated on demand via spawn()
+        pass  # pool is populated on demand via spawn()
 
     # ─── Public API ──────────────────────────────────────────────────────────
 
     def spawn(
         self,
-        gene:   str,
-        count:  int,
+        gene: str,
+        count: int,
         layout: str = "grid",
     ) -> VGroup:
         """
@@ -98,4 +99,3 @@ class MoleculePool(BaseComponent):
           PROTEIN_SHAPE_A_COLOR, PROTEIN_SHAPE_B_COLOR, PROTEIN_SHAPE_C_COLOR
         """
         raise NotImplementedError
-

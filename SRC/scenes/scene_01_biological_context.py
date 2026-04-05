@@ -48,9 +48,17 @@ class BiologicalContextDebug(Scene):
         person = Person(size=3.0, debug=DEBUG)
         person.move_to(LEFT * 2.5)
 
-        # Create heart positioned in person's body center
-        heart = Heart(size=0.8, debug=DEBUG)
-        heart.move_to(person.get_heart_position())
+        # Create heart positioned in top-right of person's chest
+        heart = Heart(size=0.16, debug=DEBUG)
+
+        # Position heart in top-right of chest (kept fully inside body bounds)
+        heart_pos = person.get_heart_position()
+        chest_x = heart_pos[0] + (0.18 * person.body.width)
+        chest_y = heart_pos[1] + (0.16 * person.body.height)
+        heart.move_to([chest_x, chest_y, 0])
+
+        # Rotate the opposite way so orientation matches expectation
+        heart.rotate(-0.4)  # ~-23 degrees
 
         # Add person to scene
         self.play(FadeIn(person))
