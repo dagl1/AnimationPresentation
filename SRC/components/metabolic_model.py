@@ -697,22 +697,6 @@ class MetabolicModel(BaseComponent):
         if not arrows:
             return AnimationGroup()
 
-        animation_group = VGroup(*arrows)
-        start_colors = {id(arrow): arrow.get_color() for arrow in arrows}
-        target_color = REACTION_COLOR
-
-        def update_arrow_colors(updated_group: VGroup, alpha: float) -> VGroup:
-            for arrow in arrows:
-                start_color = start_colors[id(arrow)]
-                current_color = ManimColor(
-                    interpolate_color(start_color, target_color, alpha)
-                )
-                # Reset the full arrow color (shaft + tip) in one call.
-                arrow.set_color(current_color)
-                tip = getattr(arrow, "tip", None)
-                if tip is not None:
-                    tip.set_fill(color=current_color)
-                    tip.set_stroke(color=current_color)
-            return updated_group
-
-        return UpdateFromAlphaFunc(animation_group, update_arrow_colors)
+        # Use simple animate.set_color() for each arrow
+        animations = [arrow.animate.set_color(REACTION_COLOR) for arrow in arrows]
+        return AnimationGroup(*animations, lag_ratio=0.0)

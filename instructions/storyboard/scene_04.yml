@@ -1,0 +1,120 @@
+SCENE_4:
+
+Title:
+"Assigning Gene Expression via GPR Rules"
+
+
+Step 1:
+- Show horizontal toy network (2 reactions)
+
+Reaction 1:
+  A AND B
+
+Reaction 2:
+  C OR D
+
+Add table:
+  A=4, B=6, C=4, D=3, E=6
+  
+Step 2:
+- Spawn:
+   4 A, 6 B
+
+Animation:
+1. Bind A + B → AB pairs
+2. Stop at 4 pairs
+3. Leave 2 B unused
+
+Show:
+- Text: Min(A, B)
+- Transform → Min(4, 6) → 4
+
+
+Step 3:
+  - Spawn:
+      4 C, 3 D
+
+  Animation:
+    - Move all to reaction (no binding) just loosely cluster
+
+  Show:
+    - Text: Sum(C, D)
+    - Transform → Sum(4, 3) → 7
+
+step 4:
+- Add vertical reaction:
+   A AND E
+
+- Spawn:
+   6 E
+
+Now show:
+- 4 AB
+- 4 AE
+
+step 5:
+Conflict:
+- Only 4 A exists total
+
+- Highlight "A = 4" in table
+
+Animation:
+- Draw arrows from A → AB and A → AE
+
+Text:
+"Over-allocation"
+
+step 6:
+Add:
+- "ecGEM (GECKO)"
+- Reference: Sánchez et al. 2017
+
+Concept:
+- Enzyme usage is constrained
+
+step 7:
+Add:
+- Downstream reaction (right side)
+
+Animation:
+- Allocate ALL A → AB
+- AE disappears
+
+Text:
+"Objective-driven allocation"
+
+step 8:
+- Move objective to include both paths
+
+Add:
+- kcat labels on reactions
+
+Step 9:
+  Animation:
+    - Higher kcat reaction dominates
+
+  Result:
+    - One path used, other ignored
+
+Step 10:
+Animation:
+- Higher kcat reaction dominates
+
+Result:
+- One path used, other ignored
+
+- ALWAYS conserve molecule counts
+- A cannot be duplicated unless explicitly shown as an error
+- Binding must be visually distinct from grouping
+
+- Use:
+   AND → physical merge
+   OR → spatial cluster
+
+- Avoid:
+   teleportation
+   overlapping shapes
+   simultaneous complex animations (>3)
+
+- Prefer:
+   sequential animations + pauses

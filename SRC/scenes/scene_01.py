@@ -55,7 +55,7 @@ INTERACTIVE_REVIEW = os.getenv("MANIM_INTERACTIVE_REVIEW", "1") == "1"
 
 # Global playback tuning for this scene.
 # MANIM_SPEED > 1.0 slows down all timed plays, < 1.0 speeds up.
-_SCENE_SPEED = min(0.3, float(os.getenv("MANIM_SPEED", "1.0")))
+_SCENE_SPEED = min(1.0, float(os.getenv("MANIM_SPEED", "1.0")))
 _STEP_END = int(os.getenv("MANIM_STEP_END", "8"))
 _BREAKPOINTS = {
     token.strip() for token in os.getenv("MANIM_BREAKPOINTS", "").split(",") if token.strip()
@@ -260,6 +260,12 @@ class Scene01Storyboard(Scene):
             run_time=self._rt(0.3),
         )
         # Step 4: eFlux overlays
+        # First, hide the regulation arrows from Step 3
+        self.play(
+            model.regulation_arrows.animate.set_opacity(0.0),
+            run_time=self._rt(0.3),
+        )
+
         eflux_text = Text("eFlux", font_size=34)
         gradient_part = Text("Relative expression (log2 fold change)", font_size=20)
         gradient_part.set_color_by_gradient(ORANGE, PURPLE)
@@ -282,6 +288,10 @@ class Scene01Storyboard(Scene):
         )
         self.wait(4)
 
+        self.play(
+            model.reset_reaction_colors(all_reactions),
+            run_time=self._rt(0.3),
+        )
         # Step 5: move model + labels to the right side and remove refs
         self.play(
             model.animate.to_edge(RIGHT, buff=0.5).shift(DOWN * 0.1),
@@ -299,11 +309,13 @@ class Scene01Storyboard(Scene):
             n_reactions=2,
             layout="horizontal",
             debug=DEBUG,
+            node_arrow_buff=0.15,
         )
         bottom_net = ToyNetwork(
             n_reactions=2,
             layout="horizontal",
             debug=DEBUG,
+            node_arrow_buff=0.15,
         )
 
         explanation = Text(
@@ -362,12 +374,12 @@ class Scene01Storyboard(Scene):
         )
         arrows_group = VGroup(top_arrow, bottom_arrow, center_question)
 
-        self.play(
-            FadeIn(top_arrow),
-            FadeIn(bottom_arrow),
-            FadeIn(center_question),
-            run_time=self._rt(2.7),
-        )
+        # self.play(
+        #     FadeIn(top_arrow),
+        #     FadeIn(bottom_arrow),
+        #     FadeIn(center_question),
+        #     run_time=self._rt(2.7),
+        # )
         self.wait(3)
 
         # Step 7: modify bottom network by transform (no object recreation for network)
@@ -416,13 +428,16 @@ class Scene01Storyboard(Scene):
             red_x = VGroup(x1, x2)
             self.play(Create(red_x), run_time=self._rt(1.5))
 
-        # Step 8: final GPR focus text
-        gpr_text = Text("Gene-Protein-Reaction (GPR) rules", font_size=32)
-        # shift both networks down slightly to make room for the text above without overlap
-        gpr_text.to_edge(UP, buff=0.3)
-        self.play(
-            FadeOut(title_text),
-            run_time=self._rt(0.8),
-        )
-        self.play(Write(gpr_text), run_time=self._rt(1.5))
+        self.wait(2.5)
+
+        # # Step 8: final GPR focus text
+        # gpr_text = Text("Gene-Protein-Reaction (GPR) rules", font_size=32)
+        # # shift both networks down slightly to make room for the text above without overlap
+        # gpr_text.to_edge(UP, buff=0.3)
+        # self.play(
+        #     FadeOut(title_text),
+        #     run_time=self._rt(0.8),
+        # )
+        # self.play(Write(gpr_text), run_time=self._rt(1.5))
+        self.wait(2)
         _hold_for_review(self)

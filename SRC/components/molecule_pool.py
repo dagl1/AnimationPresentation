@@ -18,16 +18,30 @@ from __future__ import annotations
 from typing import Iterable
 
 import numpy as np
-from manim import AnimationGroup, Polygon, Rectangle, RoundedRectangle, Text, VGroup
+from manim import (
+    AnimationGroup,
+    Circle,
+    Polygon,
+    Rectangle,
+    RegularPolygon,
+    RoundedRectangle,
+    Text,
+    Triangle,
+    UP,
+    VGroup,
+)
 
 from components.base import BaseComponent
 from utils.styling import (
     DEBUG,
+    FONT_SIZE_CAPTION,
     FONT_SIZE_GENE_LABEL,
     GENE_COLOR,
     PROTEIN_SHAPE_A_COLOR,
     PROTEIN_SHAPE_B_COLOR,
     PROTEIN_SHAPE_C_COLOR,
+    PROTEIN_SHAPE_D_COLOR,
+    PROTEIN_SHAPE_E_COLOR,
 )
 
 
@@ -73,6 +87,105 @@ class MoleculePool(BaseComponent):
             x = np.cos(angle) * radius * 0.8
             y = np.sin(angle) * radius * 0.55
             molecule.move_to(np.array([x, y, 0.0]))
+
+    @staticmethod
+    def _shape_color_for_gene(gene: str) -> str:
+        code = str(gene).strip().upper()[:1]
+        mapping = {
+            "A": PROTEIN_SHAPE_A_COLOR,
+            "B": PROTEIN_SHAPE_B_COLOR,
+            "C": PROTEIN_SHAPE_C_COLOR,
+            "D": PROTEIN_SHAPE_D_COLOR,
+            "E": PROTEIN_SHAPE_E_COLOR,
+        }
+        return mapping.get(code, PROTEIN_SHAPE_B_COLOR)
+
+    def _enzyme_shape_for_gene(self, gene: str) -> VGroup:
+        """Create a stylized enzyme glyph for gene A-E."""
+        code = str(gene).strip().upper()[:1]
+        color = self._shape_color_for_gene(code)
+
+        if code == "A":
+            body = RoundedRectangle(
+                width=0.36,
+                height=0.24,
+                corner_radius=0.06,
+                color=color,
+                fill_opacity=0.9,
+                stroke_opacity=1.0,
+            )
+            notch = Rectangle(
+                width=0.10,
+                height=0.07,
+                color=color,
+                fill_opacity=0.9,
+                stroke_opacity=1.0,
+            ).next_to(body, UP, buff=0.0)
+            shape = VGroup(body, notch)
+        elif code == "B":
+            shape = Circle(radius=0.16, color=color, fill_opacity=0.9, stroke_opacity=1.0)
+        elif code == "C":
+            shape = Triangle(color=color, fill_opacity=0.9, stroke_opacity=1.0).scale(0.22)
+        elif code == "D":
+            shape = (
+                RegularPolygon(
+                    n=4,
+                    color=color,
+                    fill_opacity=0.9,
+                    stroke_opacity=1.0,
+                )
+                .scale(0.19)
+                .rotate(np.pi / 4)
+            )
+        elif code == "E":
+            shape = RoundedRectangle(
+                width=0.34,
+                height=0.20,
+                corner_radius=0.10,
+                color=color,
+                fill_opacity=0.9,
+                stroke_opacity=1.0,
+            )
+        else:
+            shape = Circle(radius=0.16, color=color, fill_opacity=0.9, stroke_opacity=1.0)
+
+        label = Text(code, font_size=FONT_SIZE_CAPTION, color=GENE_COLOR).move_to(
+            shape.get_center()
+        )
+        return VGroup(shape, label)
+
+    def _seeded_points_in_region(
+        self,
+        total_count: int,
+        region: VGroup | Rectangle,
+        seed: int = 7,
+    ) -> list[np.ndarray]:
+        """Generate stable, non-overlapping point slots inside a region."""
+        if total_count <= 0:
+            return []
+
+        width = max(0.8, float(region.width))
+        height = max(0.8, float(region.height))
+        left = float(region.get_left()[0])
+        right = float(region.get_right()[0])
+        top = float(region.get_top()[1])
+        bottom = float(region.get_bottom()[1])
+
+        aspect = width / max(0.1, height)
+        cols = max(1, int(np.ceil(np.sqrt(total_count * aspect))))
+        rows = max(1, int(np.ceil(total_count / cols)))
+
+        x_vals = np.linspace(left + 0.24, right - 0.24, cols)
+        y_vals = np.linspace(top - 0.24, bottom + 0.24, rows)
+
+        slots: list[np.ndarray] = []
+        for y in y_vals:
+            for x in x_vals:
+                slots.append(np.array([x, y, 0.0]))
+
+        rng = np.random.default_rng(seed)
+        rng.shuffle(slots)
+        return slots[:total_count]
 
     def _iter_gene(self, gene: str) -> Iterable:
         return self._pool.get(gene, VGroup()).submobjects
@@ -239,3 +352,55 @@ class MoleculePool(BaseComponent):
                 transforms.append(Transform(molecule, target))
 
         return AnimationGroup(*transforms, lag_ratio=0.06)
+
+    def spawn_enzyme_counts(
+        self,
+        counts: dict[str, int],
+        region: VGroup | Rectangle,
+        seed: int = 7,
+    ) -> VGroup:
+        """Spawn enzyme shapes for each gene count inside a bounded region."""
+        ordered_genes = sorted(counts.keys())
+        total = sum(max(0, int(counts[g])) for g in ordered_genes)
+        points = self._seeded_points_in_region(total, region, seed=seed)
+
+        point_idx = 0
+        spawned = VGroup()
+        for gene in ordered_genes:
+            n = max(0, int(counts[gene]))
+            copies = VGroup()
+            for _ in range(n):
+                mol = self._enzyme_shape_for_gene(gene)
+                if point_idx < len(points):
+                    mol.move_to(points[point_idx])
+                point_idx += 1
+                copies.add(mol)
+                spawned.add(mol)
+
+            self._pool[gene] = copies
+            self._unpaired[gene] = VGroup(*copies)
+
+        self.add(spawned)
+        return spawned
+
+    def take_unpaired(self, gene: str, count: int) -> VGroup:
+        """Remove and return up to `count` currently unpaired molecules for a gene."""
+        code = str(gene).strip().upper()
+        current = list(self._unpaired.get(code, VGroup()).submobjects)
+        if not current or count <= 0:
+            return VGroup()
+
+        chosen = current[:count]
+        self._unpaired[code] = VGroup(*current[count:])
+        return VGroup(*chosen)
+
+    def drift_unpaired(self, amplitude: float = 0.10, seed: int = 17) -> AnimationGroup:
+        """Apply one gentle floating step to all currently unpaired molecules."""
+        rng = np.random.default_rng(seed)
+        animations = []
+        for molecules in self._unpaired.values():
+            for mol in molecules:
+                dx = float(rng.uniform(-amplitude, amplitude))
+                dy = float(rng.uniform(-amplitude, amplitude))
+                animations.append(mol.animate.shift(np.array([dx, dy, 0.0])))
+        return AnimationGroup(*animations, lag_ratio=0.0)

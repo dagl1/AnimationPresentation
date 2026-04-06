@@ -33,6 +33,10 @@ PROTEIN_SHAPE_A_COLOR: str = "#2CA02C"  # green
 PROTEIN_SHAPE_B_COLOR: str = "#1F77B4"  # blue
 # Shape C – triangle / wedge        (regulatory subunit)
 PROTEIN_SHAPE_C_COLOR: str = "#FF7F0E"  # orange
+# Shape D – diamond                 (adapter)
+PROTEIN_SHAPE_D_COLOR: str = "#9467BD"  # violet
+# Shape E – capsule                 (cofactor-like)
+PROTEIN_SHAPE_E_COLOR: str = "#17BECF"  # cyan
 
 # ─── Font ────────────────────────────────────────────────────────────────────
 DEFAULT_FONT: str = "Arial"

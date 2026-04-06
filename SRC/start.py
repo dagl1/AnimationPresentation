@@ -3,7 +3,6 @@ import os
 import subprocess
 
 # ── Scene to render ───────────────────────────────────────────────────────────
-selected_scene = "scene_1"
 SCENE_SELECTION = {
     "scene_1": {
         "scene_name": "Scene01Storyboard",
@@ -13,8 +12,13 @@ SCENE_SELECTION = {
         "scene_name": "Scene02Storyboard",
         "scene_file": os.path.join("src", "scenes", "scene_2.py"),
     },
+    "scene_4_debug": {
+        "scene_name": "Scene04Debug",
+        "scene_file": os.path.join("src", "scenes", "scene_04_debug.py"),
+    },
 }
 
+selected_scene = "scene_4_debug"
 SCENE = os.getenv("MANIM_SCENE", SCENE_SELECTION[selected_scene]["scene_name"])
 SCENE_FILE = os.getenv("MANIM_SCENE_FILE", SCENE_SELECTION[selected_scene]["scene_file"])
 

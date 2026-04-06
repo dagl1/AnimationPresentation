@@ -1,0 +1,115 @@
+SCENE_4_DEBUG:
+
+Goal:
+- Visualize enzyme pool → allocation to reactions
+- Test AND binding vs OR grouping
+- Ensure clean movement + no overlaps
+- Validate counts and positioning
+
+Components:
+- MoleculePool (A, B, C, D, E shapes)
+- ToyNetwork (2 horizontal reactions)
+- ToyNetwork (1 vertical reaction)
+
+
+Step 0: Layout
+
+Left side:
+- Enzyme pool (scattered, random motion)
+
+Right side:
+- Horizontal toy network (2 reactions, left → right)
+- Vertical toy network (1 reaction, top → bottom)
+
+Spacing:
+- Horizontal network centered right
+- Vertical network slightly below + right
+
+
+Step 1: Spawn molecules
+
+Counts:
+- A: 4
+- B: 6
+- C: 4
+- D: 3
+- E: 6
+
+Rules:
+- Each gene has consistent shape/color
+- Random initial positions (within bounded box)
+- Slight floating animation (slow drift)
+
+Important:
+- Do NOT overlap at spawn
+- Use z-index to avoid flickering
+
+
+Step 2: Define reactions
+
+Horizontal network:
+- Reaction 1: A AND B
+- Reaction 2: C OR D
+
+Vertical network:
+- Reaction 3: A AND E
+
+Show:
+- Gene labels above each reaction
+- Boolean operators as text (AND / OR)
+
+
+Step 3:
+
+Target:
+- Reaction 1 (A AND B)
+
+Animation:
+1. Select 2 A + 2 B
+2. Move toward reaction
+3. Pair them:
+   A + B → AB (binding animation)
+
+Result:
+- 2 AB complexes near reaction
+
+Leftover:
+- Remaining B stay in pool (important visual!)
+
+Step 4:
+
+Target:
+- Reaction 2 (C OR D)
+
+Animation:
+1. Move ALL:
+   - 4 C
+   - 3 D
+2. Position above reaction
+
+Rules:
+- NO binding
+- Keep spacing between shapes
+- Slight jitter allowed
+
+Result:
+- Cluster, not complex
+
+Step 5:
+
+Target:
+- Vertical reaction (A AND E)
+
+Animation:
+1. Select 2 A + 2 E
+2. Move to vertical reaction
+3. Bind into AE complexes
+
+Result:
+- 2 AE complexes
+
+Important:
+- A is reused → THIS IS INTENTIONAL (debugging allocation later)
+
+
+Validation:

@@ -91,6 +91,7 @@ class ToyNetwork(BaseComponent):
         layout: str = "horizontal",
         gene_mapping: Optional[dict] = None,
         node_labels: Optional[list[str]] = None,
+        node_arrow_buff: float = 0.08,
         debug: bool = DEBUG,
         **kwargs,
     ) -> None:
@@ -99,6 +100,7 @@ class ToyNetwork(BaseComponent):
         self.n_nodes: int = n_reactions + 1
         self.layout: str = layout
         self._node_labels: list[str] = node_labels or []
+        self.node_arrow_buff: float = node_arrow_buff
 
         # Named sub-groups – always accessible for external animation
         self.nodes: VGroup = VGroup()  # metabolite circles (+ optional label)
@@ -161,7 +163,7 @@ class ToyNetwork(BaseComponent):
             arrow = Arrow(
                 start=tail,
                 end=tip,
-                buff=0.08,
+                buff=self.node_arrow_buff,
                 stroke_width=STROKE_REACTION_BASE,
                 color=REACTION_COLOR,
                 tip_length=0.20,
