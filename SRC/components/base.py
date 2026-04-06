@@ -48,6 +48,16 @@ class BaseComponent(VGroup):
         """
         raise NotImplementedError(f"{self.__class__.__name__} must implement _build()")
 
+    @staticmethod
+    def _coerce_point3(point: object) -> np.ndarray:
+        """Convert (x, y) or (x, y, z) style inputs to a 3D numpy point."""
+        arr = np.array(point, dtype=float).flatten()
+        if arr.size == 2:
+            return np.array([arr[0], arr[1], 0.0], dtype=float)
+        if arr.size == 3:
+            return np.array([arr[0], arr[1], arr[2]], dtype=float)
+        raise ValueError(f"Expected 2D/3D point, got shape {arr.shape}")
+
     # ─── Debug overlay ───────────────────────────────────────────────────────
 
     def _add_debug_overlays(self) -> None:

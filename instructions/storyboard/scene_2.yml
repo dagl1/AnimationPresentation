@@ -1,0 +1,227 @@
+SCENE_2:
+
+Goal:
+- Explain how gene expression maps to reactions via GPR rules
+- Introduce AND / OR logic visually
+- Show combinatorial expansion (IFCs)
+- Motivate limitations → lead into GPRimproved
+
+Components Used:
+- ToyNetwork
+- MoleculePool
+- Text (GPR rules, boolean expressions)
+- IFCSystem
+- EquationBlock (optional for boolean expressions)
+
+Step 1:
+
+Start with:
+- ToyNetwork from Scene 1 still visible
+- "Gene-Protein-Reaction (GPR) rules" text centered
+
+Animation:
+1. Move GPR text upward (title position)
+2. Slightly scale down toy network
+3. Center network in frame
+
+Add:
+4. Subtitle:
+   "How do genes map to reactions?"
+
+
+Step 2:
+
+Focus:
+- First reaction in ToyNetwork
+
+Add:
+- Gene label "A" above reaction
+
+Animation:
+1. Highlight reaction (yellow glow)
+2. FadeIn gene "A"
+
+Add:
+3. Show text: "GPR: A"
+
+Meaning:
+- One gene → one reaction
+
+Step 3:
+
+Focus:
+- Second reaction
+
+Add:
+- Genes "A" and "B" above reaction
+
+Animation:
+1. Spawn floating A and B (MoleculePool)
+2. Animate binding (animate_and_binding)
+3. Transform bound pair → reaction label
+
+Add:
+4. Show: "GPR: A AND B"
+
+Highlight:
+- Emphasize binding (yellow glow)
+
+Meaning:
+- BOTH required
+
+Step 4:
+
+Focus:
+- Third reaction
+
+Add:
+- Genes "C" and "D"
+
+Animation:
+1. Spawn C and D (MoleculePool)
+2. Keep them separate (no binding)
+3. Both point to same reaction
+
+Add:
+4. Show: "GPR: C OR D"
+
+Meaning:
+- Either is sufficient
+
+
+Step 5:
+
+Replace third reaction example with:
+
+Expression:
+(A OR B) AND (C OR D)
+
+Animation:
+1. Show two groups:
+   Left: A, B (OR)
+   Right: C, D (OR)
+
+2. Pair combinations:
+   A+C
+   A+D
+   B+C
+   B+D
+
+Use:
+- Duplicate + move
+- Animate pairing
+
+Add:
+3. Label each pair briefly
+
+Step 6:
+
+Transform:
+(A OR B) AND (C OR D)
+→ AC, AD, BC, BD
+
+Animation:
+1. Morph boolean expression → list of combinations
+2. Group each pair visually
+
+Use:
+- IFCSystem
+
+Add:
+3. Title: "All functional enzyme complexes"
+
+Meaning:
+- Each combination is valid
+
+Step 7:
+
+Fade out IFCs
+
+Add:
+- Text:
+  "Expression → Activity?"
+
+Animation:
+1. Reintroduce:
+   - High (↑ orange)
+   - Low (↓ purple)
+
+2. Attach to genes
+
+Meaning:
+- Same assumption from Scene 1
+
+Step 8:
+
+Introduce 3-step pipeline (stacked text):
+
+1. Protein abundance
+2. GPR mapping
+3. kcat values
+
+Animation:
+1. FadeIn each step sequentially
+2. Slight vertical spacing
+
+Highlight:
+- Step 1: "often missing"
+
+
+
+Step 9:
+
+Add title:
+"GPRimproved"
+
+Animation:
+1. Transform 3 steps → unified system
+
+Then sequentially:
+
+Step A:
+- RNA → Protein
+  (arrow transformation)
+
+Step B:
+- Allocation across complexes
+  (use IFC visual briefly)
+
+Step C:
+- kcat assignment
+  (small annotation on reactions)
+
+Meaning:
+- More complete pipeline
+
+Step 10:
+
+Final text:
+
+"Objective-independent enzyme allocation"
+
+Animation:
+1. Highlight text (yellow glow)
+
+Fade:
+2. Fade out everything except:
+   - key phrase
+
+Transition:
+→ Scene 3
+
+- Reuse ToyNetwork from Scene 1 (do not recreate)
+- MoleculePool used only for AND/OR animations
+- Boolean expressions should be Text or MathTex
+
+- AND:
+   must physically bind (visual rule)
+
+- OR:
+   must remain separate
+
+- IFC expansion:
+   must use duplication + transform, not fade-in list
+
+- Keep max 3 simultaneous animations
+
+- Use yellow highlight ONLY for emphasis

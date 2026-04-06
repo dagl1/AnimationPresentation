@@ -37,6 +37,7 @@ from manim import (
     VGroup,
     Write,
     config,
+    interpolate_color,
 )
 
 from components.heart import Heart
@@ -44,6 +45,7 @@ from components.metabolic_model import MetabolicModel
 from components.person import Person
 from components.toy_network import ToyNetwork
 from utils.styling import DEBUG, REACTION_COLOR
+import numpy as np
 
 INTERACTIVE_REVIEW = os.getenv("MANIM_INTERACTIVE_REVIEW", "1") == "1"
 
@@ -95,18 +97,61 @@ class Scene01Storyboard(Scene):
         """Return True when scene should stop after this step."""
         return step_id >= _STEP_END
 
+    @staticmethod
+    def _expr_color(value: str):
+        """Map expression values to a purple→orange gradient with 20 at midpoint."""
+        try:
+            numeric = float(value)
+        except (TypeError, ValueError):
+            return interpolate_color(PURPLE, ORANGE, 0.5)
+
+        if numeric <= 0.0:
+            return PURPLE
+        if numeric >= 200.0:
+            return ORANGE
+
+        # Piecewise mapping: 0 -> 0.0, 20 -> 0.5, 200 -> 1.0
+        if numeric <= 20.0:
+            t = 0.5 * (numeric / 20.0)
+        else:
+            t = 0.5 + (0.5 * ((numeric - 20.0) / 180.0))
+
+        return interpolate_color(PURPLE, ORANGE, t)
+
     def _expr_group_for(self, net: ToyNetwork, values: tuple[str, str]) -> VGroup:
-        """Build expression labels above R1/R2 gene labels for transform-based updates."""
+        """Build expression labels for R1/R2, falling back to arrow-based placement."""
         labels_r1 = net.get_gene_labels("R1")
         labels_r2 = net.get_gene_labels("R2")
-        if labels_r1 is None or labels_r2 is None:
+
+        # Preferred placement: above gene labels when they exist.
+        if labels_r1 is not None and labels_r2 is not None:
+            expr_r1 = Text(
+                values[0],
+                font_size=20,
+                color=self._expr_color(values[0]),
+            ).next_to(labels_r1[0], UP, buff=0.22)
+            expr_r2 = Text(
+                values[1],
+                font_size=20,
+                color=self._expr_color(values[1]),
+            ).next_to(labels_r2[0], UP, buff=0.22)
+            return VGroup(expr_r1, expr_r2)
+
+        # Step 6/7 fallback: place numeric expressions above reaction arrows.
+        arrow_r1 = net.get_arrow("R1")
+        arrow_r2 = net.get_arrow("R2")
+        if arrow_r1 is None or arrow_r2 is None:
             return VGroup()
 
-        expr_r1 = Text(values[0], font_size=20, color=labels_r1[0].get_color()).next_to(
-            labels_r1[0], UP, buff=0.22
+        expr_r1 = Text(values[0], font_size=20, color=self._expr_color(values[0])).next_to(
+            arrow_r1,
+            UP,
+            buff=0.22,
         )
-        expr_r2 = Text(values[1], font_size=20, color=labels_r2[0].get_color()).next_to(
-            labels_r2[0], UP, buff=0.22
+        expr_r2 = Text(values[1], font_size=20, color=self._expr_color(values[1])).next_to(
+            arrow_r2,
+            UP,
+            buff=0.22,
         )
         return VGroup(expr_r1, expr_r2)
 
@@ -223,7 +268,7 @@ class Scene01Storyboard(Scene):
 
         # Step 5: move model + labels to the right side and remove refs
         self.play(
-            model.animate.to_edge(RIGHT, buff=0.5).scale(0.9).shift(DOWN * 0.2),
+            model.animate.to_edge(RIGHT, buff=0.5).scale(0.95).shift(DOWN * 0.1),
             FadeOut(imat_vgroup),
             FadeOut(eflux_group),
             FadeOut(imat_ref),
@@ -236,19 +281,17 @@ class Scene01Storyboard(Scene):
         top_net = ToyNetwork(
             n_reactions=2,
             layout="horizontal",
-            gene_mapping={"R1": ["A"], "R2": ["B"]},
             debug=DEBUG,
         )
         bottom_net = ToyNetwork(
             n_reactions=2,
             layout="horizontal",
-            gene_mapping={"R1": ["A"], "R2": ["B"]},
             debug=DEBUG,
         )
 
         top_net.scale(0.9)
         bottom_net.scale(0.9)
-        top_net.to_edge(LEFT, buff=0.8).to_edge(UP, buff=1.2).shift(DOWN * 0.3)
+        top_net.to_edge(LEFT, buff=0.8).to_edge(UP, buff=1.2).shift(DOWN * 0.5)
         bottom_net.next_to(top_net, DOWN, buff=1.0).align_to(top_net, LEFT)
 
         self.play(FadeIn(top_net), run_time=self._rt(0.6))
@@ -256,12 +299,16 @@ class Scene01Storyboard(Scene):
 
         top_expr = self._expr_group_for(top_net, ("20", "20"))
         bottom_expr = self._expr_group_for(bottom_net, ("200", "200"))
-        self.play(FadeIn(top_expr), FadeIn(bottom_expr), run_time=self._rt(0.6))
+        self.play(FadeIn(top_expr), run_time=self._rt(2.6))
+        self.play(FadeIn(bottom_expr), run_time=self._rt(2.6))
 
         self.play(
-            top_net.animate_flux_thickness({"R1": 0.25, "R2": 0.25}, run_time=self._rt(0.7)),
+            top_net.animate_flux_thickness({"R1": 0.25, "R2": 0.25}, run_time=self._rt(1.5)),
+        )
+        self.wait(1)
+        self.play(
             bottom_net.animate_flux_thickness(
-                {"R1": 0.85, "R2": 0.85}, run_time=self._rt(0.7)
+                {"R1": 0.85, "R2": 0.85}, run_time=self._rt(1.5)
             ),
         )
 
@@ -277,50 +324,76 @@ class Scene01Storyboard(Scene):
             end=bottom_net.get_right() + RIGHT * 0.1,
             buff=0.0,
         )
+        arrows_group = VGroup(top_arrow, bottom_arrow)
 
         self.play(
             Create(top_arrow),
             Create(bottom_arrow),
             FadeIn(center_question),
-            run_time=self._rt(0.7),
+            run_time=self._rt(2.7),
         )
-        self._maybe_breakpoint(6)
-        if self._stop_after_if_needed(6):
-            _hold_for_review(self)
-            return
+        self.wait(3)
 
         # Step 7: modify bottom network by transform (no object recreation for network)
         target_expr = self._expr_group_for(bottom_net, ("20", "0"))
-        self.play(Transform(bottom_expr, target_expr), run_time=self._rt(0.7))
+        self.play(Transform(bottom_expr, target_expr), run_time=self._rt(1.3))
         self.play(
             bottom_net.animate_flux_thickness(
-                {"R1": 0.35, "R2": 0.02}, run_time=self._rt(0.7)
+                {"R1": 0.35, "R2": 0.02}, run_time=self._rt(1.5)
             )
         )
 
         reaction2 = bottom_net.get_arrow("R2")
         if reaction2 is not None:
+            start = reaction2.get_start()
+            end = reaction2.get_end()
+            direction = end - start
+            length = float(np.linalg.norm(direction))
+            if length <= 1e-8:
+                direction = RIGHT
+                length = 1.0
+            unit = direction / length
+            perpendicular = np.array([-unit[1], unit[0], 0.0])
+
+            # Build an actual small X from two perpendicular diagonals.
+            center = reaction2.get_center()
+            arm = max(0.06, min(0.14, length * 0.12))
+            diag1 = unit + perpendicular
+            diag2 = unit - perpendicular
+            diag1 /= float(np.linalg.norm(diag1))
+            diag2 /= float(np.linalg.norm(diag2))
+
             x1 = Line(
-                reaction2.get_start() + UP * 0.12,
-                reaction2.get_end() + DOWN * 0.12,
+                center - (diag1 * arm),
+                center + (diag1 * arm),
                 color="#FF3333",
+                stroke_width=4,
             )
             x2 = Line(
-                reaction2.get_start() + DOWN * 0.12,
-                reaction2.get_end() + UP * 0.12,
+                center - (diag2 * arm),
+                center + (diag2 * arm),
                 color="#FF3333",
+                stroke_width=4,
             )
             red_x = VGroup(x1, x2)
-            self.play(Create(red_x), run_time=self._rt(0.5))
-        self._maybe_breakpoint(7)
-        if self._stop_after_if_needed(7):
-            _hold_for_review(self)
-            return
+            self.play(Create(red_x), run_time=self._rt(1.5))
 
         # Step 8: final GPR focus text
-        gpr_text = Text("Gene-Protein-Reaction (GPR) rules", font_size=38)
-        gpr_text.move_to(ORIGIN)
-        self.play(FadeIn(gpr_text), run_time=self._rt(0.7))
-        self._maybe_breakpoint(8)
-
+        gpr_text = Text("Gene-Protein-Reaction (GPR) rules", font_size=32)
+        # shift both networks down slightly to make room for the text above without overlap
+        networks_expression_vgroup = VGroup(
+            top_net,
+            bottom_net,
+            top_expr,
+            bottom_expr,
+            red_x if reaction2 is not None else VGroup(),
+            arrows_group,
+        )
+        networks_expression_vgroup.shift(DOWN * 0.3)
+        gpr_text.next_to(top_net, UP, buff=1.2).shift(RIGHT * 0.2)
+        self.play(
+            networks_expression_vgroup.animate.shift(DOWN * 0.3),
+            run_time=self._rt(1.5),
+        )
+        self.play(Write(gpr_text), run_time=self._rt(1.5))
         _hold_for_review(self)
