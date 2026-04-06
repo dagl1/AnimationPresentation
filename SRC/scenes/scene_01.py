@@ -14,6 +14,8 @@ from __future__ import annotations
 import os
 import sys
 
+from manim.utils.rate_functions import RateFunction
+
 # Make src/ importable when manim executes this file directly
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
@@ -39,6 +41,8 @@ from manim import (
     Write,
     config,
     interpolate_color,
+    Indicate,
+    Circumscribe,
 )
 
 from components.heart import Heart
@@ -51,7 +55,7 @@ INTERACTIVE_REVIEW = os.getenv("MANIM_INTERACTIVE_REVIEW", "1") == "1"
 
 # Global playback tuning for this scene.
 # MANIM_SPEED > 1.0 slows down all timed plays, < 1.0 speeds up.
-_SCENE_SPEED = min(1, float(os.getenv("MANIM_SPEED", "1.0")))
+_SCENE_SPEED = min(0.3, float(os.getenv("MANIM_SPEED", "1.0")))
 _STEP_END = int(os.getenv("MANIM_STEP_END", "8"))
 _BREAKPOINTS = {
     token.strip() for token in os.getenv("MANIM_BREAKPOINTS", "").split(",") if token.strip()
@@ -157,6 +161,9 @@ class Scene01Storyboard(Scene):
 
     def construct(self) -> None:
         # Step 1: person + heart -> extracted heart -> question mark
+        title_text = Text("Metabotyping using omics data", font_size=32)
+        title_text.to_edge(UP, buff=0.3)
+        self.play(Write(title_text), run_time=self._rt(1.5))
         person = Person(size=3.0, debug=DEBUG).to_edge(LEFT, buff=1.0)
         heart = Heart(size=0.16, debug=DEBUG)
         chest_center = person.get_heart_position()
@@ -173,15 +180,23 @@ class Scene01Storyboard(Scene):
         self.play(FadeIn(heart), run_time=self._rt(1.6))
 
         question_mark = Text("Metabolic State?", font_size=30)
-        question_mark.next_to(person, RIGHT, buff=1.5)
-        self.play(heart.animate.move_to(question_mark.get_center()), run_time=self._rt(1.6))
-        self.play(Transform(heart, question_mark), run_time=self._rt(0.6))
+        gene_expression_text = Text("(from Gene Expression)", font_size=20)
+        question_group = VGroup(question_mark, gene_expression_text).arrange(DOWN, buff=0.15)
+        question_group.next_to(person, RIGHT, buff=1.5)
+        self.play(heart.animate.move_to(question_group.get_center()), run_time=self._rt(1.6))
+        self.play(Transform(heart, question_group), run_time=self._rt(0.6))
+        self.wait(1.5)
+
+        self.play(
+            Indicate(
+                heart,
+                scale_factor=1.2,
+                color=ORANGE,
+            ),
+            run_time=self._rt(1.0),
+        )
         # self.interactive_embed()
         self.wait(2)
-
-        self._maybe_breakpoint(1)
-        if self._stop_after_if_needed(1):
-            return
 
         # Step 2: show metabolic model and shift focus left
         model = MetabolicModel(debug=DEBUG)
@@ -193,7 +208,11 @@ class Scene01Storyboard(Scene):
 
         left_focus = VGroup(model, heart)
         self.play(left_focus.animate.to_edge(LEFT, buff=0.5), run_time=self._rt(0.8))
-        self.wait(2)
+        self.wait(0.5)
+        GEM_text = Text("Genome-scale Metabolic Model", font_size=20)
+        GEM_text.next_to(model, RIGHT, buff=0.15).shift(UP * 1.8)
+        self.play(Write(GEM_text), run_time=self._rt(0.6))
+        self.wait(3)
 
         # Step 3: iMAT overlays and pathway fade/recovery
         starting_parenthesis = Text("(", font_size=20)
@@ -204,9 +223,9 @@ class Scene01Storyboard(Scene):
         thresholds_text = Text(" thresholds)", font_size=20)
         threshold_group = VGroup(
             starting_parenthesis, high_text, slash_text, low_text, thresholds_text
-        ).arrange(RIGHT, buff=0.1)
+        ).arrange(RIGHT, buff=0.01)
         imat_vgroup = VGroup(imat_text, threshold_group).arrange(DOWN, buff=0.15)
-        imat_vgroup.next_to(model, RIGHT, buff=0.4).shift(UP * 0.2).shift(RIGHT * 0.4)
+        imat_vgroup.next_to(model, RIGHT, buff=0.4).shift(UP * 0.2).shift(RIGHT * 0.6)
         imat_ref = Text("(Shlomi et al. 2008)", font_size=20)
         imat_ref.to_edge(DOWN, buff=0.7).to_edge(LEFT, buff=0.8)
 
@@ -217,7 +236,7 @@ class Scene01Storyboard(Scene):
         self.play(
             model.highlight_reactions(high=high_rxns, low=low_rxns), run_time=self._rt(2.9)
         )
-        self.wait(2)
+        self.wait(4.5)
         self.play(
             model.fade_pathways(
                 [MetabolicModel.PATHWAY_GLYCOLYSIS, "upper_tca"],
@@ -225,7 +244,7 @@ class Scene01Storyboard(Scene):
             ),
             run_time=self._rt(1.2),
         )
-        self.wait(3)
+        self.wait(5)
         self.play(
             model.fade_pathways(
                 [MetabolicModel.PATHWAY_GLYCOLYSIS, "upper_tca"],
@@ -242,19 +261,15 @@ class Scene01Storyboard(Scene):
         )
         # Step 4: eFlux overlays
         eflux_text = Text("eFlux", font_size=34)
-        prefix = Text("Relative expression (", font_size=20)
-        gradient_part = Text("log2 fold change", font_size=20)
+        gradient_part = Text("Relative expression (log2 fold change)", font_size=20)
         gradient_part.set_color_by_gradient(ORANGE, PURPLE)
-        suffix = Text(")", font_size=20)
-        relative_expression_text = VGroup(prefix, gradient_part, suffix).arrange(
-            RIGHT, buff=0.03
-        )
-        eflux_group = VGroup(eflux_text, relative_expression_text).arrange(DOWN, buff=0.15)
+        eflux_group = VGroup(eflux_text, gradient_part).arrange(DOWN, buff=0.15)
         eflux_group.next_to(imat_text, DOWN, buff=0.8)
         eflux_ref = Text("(Colijn et al. 2009)", font_size=20)
         eflux_ref.next_to(imat_ref, DOWN, buff=0.15).align_to(imat_ref, LEFT)
 
         self.play(FadeIn(eflux_group), FadeIn(eflux_ref), run_time=self._rt(0.6))
+        self.wait(2)
 
         all_reactions = sorted(model.reaction_by_id.keys())
         reaction_values = {
@@ -265,15 +280,17 @@ class Scene01Storyboard(Scene):
             model.color_reactions_by_value(reaction_values, value_min=-2.0, value_max=2.0),
             run_time=self._rt(2.7),
         )
+        self.wait(4)
 
         # Step 5: move model + labels to the right side and remove refs
         self.play(
-            model.animate.to_edge(RIGHT, buff=0.5).scale(0.95).shift(DOWN * 0.1),
+            model.animate.to_edge(RIGHT, buff=0.5).shift(DOWN * 0.1),
             FadeOut(imat_vgroup),
             FadeOut(eflux_group),
             FadeOut(imat_ref),
             FadeOut(eflux_ref),
             FadeOut(heart),
+            FadeOut(GEM_text),
             run_time=self._rt(0.9),
         )
 
@@ -289,26 +306,45 @@ class Scene01Storyboard(Scene):
             debug=DEBUG,
         )
 
+        explanation = Text(
+            "Intuition: higher expression = higher activity",
+            font_size=20,
+        )
+
         top_net.scale(0.9)
         bottom_net.scale(0.9)
         top_net.to_edge(LEFT, buff=0.8).to_edge(UP, buff=1.2).shift(DOWN * 0.5)
         bottom_net.next_to(top_net, DOWN, buff=1.0).align_to(top_net, LEFT)
+        explanation.next_to(bottom_net, DOWN, buff=0.8).align_to(bottom_net, LEFT)
 
         self.play(FadeIn(top_net), run_time=self._rt(0.6))
         self.play(FadeIn(bottom_net), run_time=self._rt(0.6))
+        self.play(FadeIn(explanation), run_time=self._rt(1.2))
+        self.wait(2)
 
         top_expr = self._expr_group_for(top_net, ("20", "20"))
         bottom_expr = self._expr_group_for(bottom_net, ("200", "200"))
         self.play(FadeIn(top_expr), run_time=self._rt(2.6))
         self.play(FadeIn(bottom_expr), run_time=self._rt(2.6))
 
+        # get interpolated color for
+        color_20 = self._expr_color("20")
+        color_200 = self._expr_color("200")
+        color_0 = self._expr_color("0")
+
         self.play(
-            top_net.animate_flux_thickness({"R1": 0.25, "R2": 0.25}, run_time=self._rt(1.5)),
+            top_net.animate_flux_thickness(
+                {"R1": 0.5, "R2": 0.5},
+                color={"R1": color_20, "R2": color_20},
+                run_time=self._rt(1.5),
+            ),
         )
         self.wait(1)
         self.play(
             bottom_net.animate_flux_thickness(
-                {"R1": 0.85, "R2": 0.85}, run_time=self._rt(1.5)
+                {"R1": 1.5, "R2": 1.5},
+                color={"R1": color_200, "R2": color_200},
+                run_time=self._rt(1.5),
             ),
         )
 
@@ -324,11 +360,11 @@ class Scene01Storyboard(Scene):
             end=bottom_net.get_right() + RIGHT * 0.1,
             buff=0.0,
         )
-        arrows_group = VGroup(top_arrow, bottom_arrow)
+        arrows_group = VGroup(top_arrow, bottom_arrow, center_question)
 
         self.play(
-            Create(top_arrow),
-            Create(bottom_arrow),
+            FadeIn(top_arrow),
+            FadeIn(bottom_arrow),
             FadeIn(center_question),
             run_time=self._rt(2.7),
         )
@@ -339,7 +375,9 @@ class Scene01Storyboard(Scene):
         self.play(Transform(bottom_expr, target_expr), run_time=self._rt(1.3))
         self.play(
             bottom_net.animate_flux_thickness(
-                {"R1": 0.35, "R2": 0.02}, run_time=self._rt(1.5)
+                {"R1": 0.5, "R2": 0.02},
+                color={"R1": color_20, "R2": color_0},
+                run_time=self._rt(1.5),
             )
         )
 
@@ -381,19 +419,10 @@ class Scene01Storyboard(Scene):
         # Step 8: final GPR focus text
         gpr_text = Text("Gene-Protein-Reaction (GPR) rules", font_size=32)
         # shift both networks down slightly to make room for the text above without overlap
-        networks_expression_vgroup = VGroup(
-            top_net,
-            bottom_net,
-            top_expr,
-            bottom_expr,
-            red_x if reaction2 is not None else VGroup(),
-            arrows_group,
-        )
-        networks_expression_vgroup.shift(DOWN * 0.3)
-        gpr_text.next_to(top_net, UP, buff=1.2).shift(RIGHT * 0.2)
+        gpr_text.to_edge(UP, buff=0.3)
         self.play(
-            networks_expression_vgroup.animate.shift(DOWN * 0.3),
-            run_time=self._rt(1.5),
+            FadeOut(title_text),
+            run_time=self._rt(0.8),
         )
         self.play(Write(gpr_text), run_time=self._rt(1.5))
         _hold_for_review(self)

@@ -245,6 +245,7 @@ class ToyNetwork(BaseComponent):
         mapping: dict,
         run_time: float = 0.8,
         lag_ratio: float = 0.0,
+        color: Optional[str] | dict[str, str] = None,
     ) -> AnimationGroup:
         """
         Return a smooth transition animation for flux thickness updates.
@@ -258,17 +259,44 @@ class ToyNetwork(BaseComponent):
             Duration for each arrow stroke-width transition.
         lag_ratio : float
             Delay ratio between successive arrow transitions.
+        color : str | dict[str, str] | None
+            Optional color transition for arrows in ``mapping``.
+            - ``str``: apply one color to all mapped reactions.
+            - ``dict``: per-reaction colors.
+            - ``None``: reset mapped reactions to default ``REACTION_COLOR``.
         """
         transitions = []
+
+        color_by_reaction: dict[str, str] = {}
+        if isinstance(color, str):
+            color_by_reaction = {f"R{i + 1}": color for i in range(self.n_reactions)}
+        elif isinstance(color, dict):
+            for key, value in color.items():
+                idx = self._resolve_idx(key)
+                if idx is None or idx >= self.n_reactions:
+                    continue
+                color_by_reaction[f"R{idx + 1}"] = value
+
+        reset_to_default_color = color is None
+
         for key, flux in mapping.items():
             idx = self._resolve_idx(key)
             if idx is None or idx >= self.n_reactions:
                 continue
 
+            reaction_id = f"R{idx + 1}"
             stroke = self._flux_to_stroke(flux)
-            transitions.append(
-                self.arrows[idx].animate(run_time=run_time).set_stroke(width=stroke)
-            )
+
+            target_color = color_by_reaction.get(reaction_id)
+            if target_color is None and reset_to_default_color:
+                target_color = REACTION_COLOR
+
+            animator = self.arrows[idx].animate(run_time=run_time).set_stroke(width=stroke)
+            if target_color is not None:
+                # set_color updates both shaft and tip in OpenGL/Cairo renderers.
+                animator = animator.set_color(target_color)
+
+            transitions.append(animator)
 
         return AnimationGroup(*transitions, lag_ratio=lag_ratio)
 

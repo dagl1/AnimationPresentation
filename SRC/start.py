@@ -3,8 +3,20 @@ import os
 import subprocess
 
 # ── Scene to render ───────────────────────────────────────────────────────────
-SCENE = os.getenv("MANIM_SCENE", "Scene2Storyboard")
-SCENE_FILE = os.getenv("MANIM_SCENE_FILE", os.path.join("src", "scenes", "scene_2.py"))
+selected_scene = "scene_1"
+SCENE_SELECTION = {
+    "scene_1": {
+        "scene_name": "Scene01Storyboard",
+        "scene_file": os.path.join("src", "scenes", "scene_01.py"),
+    },
+    "scene_2": {
+        "scene_name": "Scene02Storyboard",
+        "scene_file": os.path.join("src", "scenes", "scene_2.py"),
+    },
+}
+
+SCENE = os.getenv("MANIM_SCENE", SCENE_SELECTION[selected_scene]["scene_name"])
+SCENE_FILE = os.getenv("MANIM_SCENE_FILE", SCENE_SELECTION[selected_scene]["scene_file"])
 
 QUALITY = "-qk"  # quick quality for fast iteration
 RENDERER = "--renderer=opengl"
