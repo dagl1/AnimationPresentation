@@ -28,6 +28,9 @@ from typing import Optional, Union
 
 import numpy as np
 from manim import (
+    DOWN,
+    ORIGIN,
+    RIGHT,
     AnimationGroup,
     FadeIn,
     LaggedStart,
@@ -35,9 +38,6 @@ from manim import (
     Text,
     TransformFromCopy,
     VGroup,
-    DOWN,
-    RIGHT,
-    ORIGIN,
 )
 
 from components.base import BaseComponent

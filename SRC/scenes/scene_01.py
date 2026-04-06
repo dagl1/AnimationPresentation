@@ -17,6 +17,7 @@ import sys
 # Make src/ importable when manim executes this file directly
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
+import numpy as np
 from manim import (
     DOWN,
     LEFT,
@@ -45,7 +46,6 @@ from components.metabolic_model import MetabolicModel
 from components.person import Person
 from components.toy_network import ToyNetwork
 from utils.styling import DEBUG, REACTION_COLOR
-import numpy as np
 
 INTERACTIVE_REVIEW = os.getenv("MANIM_INTERACTIVE_REVIEW", "1") == "1"
 

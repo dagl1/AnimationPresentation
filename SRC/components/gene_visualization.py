@@ -114,14 +114,14 @@ class GeneHighlight(BaseComponent):
         AnimationGroup
             Animation sequence.
         """
-        if not self.glow_circle:
+        if self.glow_circle is None:
             return AnimationGroup()
 
         return self.glow_circle.animate(run_time=run_time).set_stroke(opacity=GLOW_OPACITY)
 
     def remove_glow(self, run_time: float = 0.5) -> AnimationGroup:
         """Fade out the glow."""
-        if not self.glow_circle:
+        if self.glow_circle is None:
             return AnimationGroup()
 
         return self.glow_circle.animate(run_time=run_time).set_stroke(opacity=0)

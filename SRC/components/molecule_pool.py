@@ -18,14 +18,7 @@ from __future__ import annotations
 from typing import Iterable
 
 import numpy as np
-from manim import (
-    AnimationGroup,
-    Polygon,
-    Rectangle,
-    RoundedRectangle,
-    Text,
-    VGroup,
-)
+from manim import AnimationGroup, Polygon, Rectangle, RoundedRectangle, Text, VGroup
 
 from components.base import BaseComponent
 from utils.styling import (

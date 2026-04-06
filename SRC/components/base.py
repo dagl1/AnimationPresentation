@@ -14,12 +14,7 @@ from __future__ import annotations
 import numpy as np
 from manim import DOWN, RIGHT, UP, Circle, Dot, Mobject, SurroundingRectangle, Text, VGroup
 
-from utils.styling import (
-    DEBUG,
-    DEBUG_ANCHOR_COLOR,
-    DEBUG_BOX_COLOR,
-    DEBUG_FONT_SIZE,
-)
+from utils.styling import DEBUG, DEBUG_ANCHOR_COLOR, DEBUG_BOX_COLOR, DEBUG_FONT_SIZE
 
 
 class BaseComponent(VGroup):

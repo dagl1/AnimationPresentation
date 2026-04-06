@@ -25,35 +25,27 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from manim import (
-    config,
-    Create,
     DOWN,
-    FadeIn,
-    FadeOut,
     LEFT,
-    MathTex,
     ORIGIN,
     RIGHT,
+    UP,
+    Create,
+    FadeIn,
+    FadeOut,
+    MathTex,
     Scene,
     Text,
-    UP,
     VGroup,
     Write,
+    config,
 )
 
-from components.gene_visualization import (
-    ColoredGeneLabel,
-    GeneHighlight,
-)
+from components.gene_visualization import ColoredGeneLabel, GeneHighlight
 from components.ifc_system import IFCSystem
 from components.molecule_pool import MoleculePool
 from components.toy_network import ToyNetwork
-from utils.styling import (
-    FONT_SIZE_EXPRESSION,
-    FONT_SIZE_TITLE,
-    HIGHLIGHT_COLOR,
-)
-
+from utils.styling import FONT_SIZE_EXPRESSION, FONT_SIZE_TITLE, HIGHLIGHT_COLOR
 
 INTERACTIVE_REVIEW = os.getenv("MANIM_INTERACTIVE_REVIEW", "1") == "1"
 
